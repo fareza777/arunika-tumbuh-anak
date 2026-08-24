@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- Izin notifikasi pengingat pengukuran (Android 13+). -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <application
@@ -35,6 +36,19 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="@string/admob_app_id" />
+
+        <!--
+             Google Mobile Ads brings WorkManager for deferred ad work. The
+             bundled WorkManager 2.7 initializer crashes before Flutter starts
+             on some Android 13 vendor ROMs, so initialize it lazily instead.
+        -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                tools:node="remove" />
+        </provider>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
