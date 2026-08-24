@@ -70,13 +70,15 @@ class _MainShellState extends ConsumerState<MainShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: true,
       body: Column(
         children: [
           Expanded(
             child: IndexedStack(index: _index, children: _pages),
           ),
-          const StableBannerAd(placement: BannerPlacement.mainShell),
+          const Padding(
+            padding: EdgeInsets.only(bottom: 28),
+            child: StableBannerAd(placement: BannerPlacement.mainShell),
+          ),
         ],
       ),
       floatingActionButton: GoldFab(onPressed: _openAddMeasurement),

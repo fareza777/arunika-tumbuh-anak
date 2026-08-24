@@ -7,6 +7,8 @@ import '../../data/repo/child_repository.dart';
 import '../../data/repo/measurement_repository.dart';
 import '../../data/repo/nutrition_repository.dart';
 import '../../data/repo/progress_repository.dart';
+import '../content/immunization_data.dart';
+import '../content/milestone_data.dart';
 
 /// Seeds fictional, non-sensitive content for store screenshots only.
 class DemoSeed {
@@ -86,29 +88,13 @@ class DemoSeed {
     ]);
 
     final progressRepo = ProgressRepository();
-    for (final id in [
-      'gm_24_run',
-      'gm_24_kick',
-      'fm_24_tower4',
-      'lg_24_2words',
-      'sc_24_parallel',
-      'gm_30_jump',
-      'fm_30_turnpage',
-      'lg_30_pronoun',
-    ]) {
-      await progressRepo.setMilestoneAchieved(alya.id, id, true);
+    for (final milestone in kMilestones.where(
+      (item) => item.typicalMonths <= 30,
+    )) {
+      await progressRepo.setMilestoneAchieved(alya.id, milestone.id, true);
     }
-    for (final id in [
-      'hb0',
-      'bcg',
-      'polio1',
-      'dpt1',
-      'polio2',
-      'mr1',
-      'pcv1',
-      'flu1',
-    ]) {
-      await progressRepo.setImmunizationDone(alya.id, id, true);
+    for (final vaccine in kVaccines.where((item) => item.ageMonths <= 24)) {
+      await progressRepo.setImmunizationDone(alya.id, vaccine.id, true);
     }
 
     final nutritionRepo = NutritionRepository();

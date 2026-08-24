@@ -40,6 +40,9 @@ migrate_working_dir/
 # Rendered media can be regenerated from the Remotion project.
 /promo-video/out/
 
+# Temporary emulator captures used while composing store assets.
+/store/assets/raw/
+
 # Symbolication related
 app.*.symbols
 
