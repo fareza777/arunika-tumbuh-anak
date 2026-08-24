@@ -1,4 +1,4 @@
 <resources>
-    <!-- Google test application ID; replaced with the AdMob app ID before release. -->
-    <string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>
+    <!-- Production AdMob application ID for Arunika. -->
+    <string name="admob_app_id">ca-app-pub-6279186647593327~2291605461</string>
 </resources>
