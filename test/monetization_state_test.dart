@@ -18,17 +18,22 @@ void main() {
     expect(state.productPrice, 'US\$4.99');
   });
 
-  test('verification error does not revoke a previously verified entitlement', () {
-    final verified = const MonetizationState.initial().verified();
-    final state = verified.withMessage('Play Store sementara tidak tersedia');
+  test(
+    'verification error does not revoke a previously verified entitlement',
+    () {
+      final verified = const MonetizationState.initial().verified();
+      final state = verified.withMessage('Play Store sementara tidak tersedia');
 
-    expect(state.adsRemoved, isTrue);
-    expect(state.isVerifying, isFalse);
-    expect(state.message, 'Play Store sementara tidak tersedia');
-  });
+      expect(state.adsRemoved, isTrue);
+      expect(state.isVerifying, isFalse);
+      expect(state.message, 'Play Store sementara tidak tersedia');
+    },
+  );
 
   test('unverified errors keep ads visible', () {
-    final state = const MonetizationState.initial().withMessage('Gagal memuat produk');
+    final state = const MonetizationState.initial().withMessage(
+      'Gagal memuat produk',
+    );
 
     expect(state.adsRemoved, isFalse);
     expect(state.message, 'Gagal memuat produk');

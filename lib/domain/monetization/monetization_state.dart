@@ -9,11 +9,11 @@ class MonetizationState {
   });
 
   const MonetizationState.initial()
-      : adsRemoved = false,
-        isVerifying = true,
-        storeAvailable = false,
-        productPrice = null,
-        message = null;
+    : adsRemoved = false,
+      isVerifying = true,
+      storeAvailable = false,
+      productPrice = null,
+      message = null;
 
   final bool adsRemoved;
   final bool isVerifying;

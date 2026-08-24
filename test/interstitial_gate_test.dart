@@ -37,7 +37,10 @@ void main() {
       gate.recordMeasurementSaved();
     }
 
-    expect(gate.canShow(now.add(const Duration(minutes: 9, seconds: 59))), isFalse);
+    expect(
+      gate.canShow(now.add(const Duration(minutes: 9, seconds: 59))),
+      isFalse,
+    );
     expect(gate.canShow(now.add(const Duration(minutes: 10))), isTrue);
   });
 }
