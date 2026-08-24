@@ -42,6 +42,9 @@ class _FakeGateway implements MonetizationGateway {
   }
 
   @override
+  Future<void> showPrivacyOptions() async {}
+
+  @override
   Future<void> dispose() => updates.close();
 
   void emit(PurchaseUpdate update) => updates.add(update);

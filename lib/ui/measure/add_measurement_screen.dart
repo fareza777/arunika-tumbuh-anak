@@ -248,6 +248,7 @@ class _AddMeasurementScreenState extends ConsumerState<AddMeasurementScreen> {
           .read(zScoreServiceProvider)
           .analyze(child: child, measurement: saved, standard: standard);
       await _showResultSheet(analysis);
+      await ref.read(monetizationProvider.notifier).maybeShowInterstitial();
       if (mounted) Navigator.of(context).pop();
     } finally {
       if (mounted) setState(() => _saving = false);

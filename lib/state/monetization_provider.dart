@@ -8,6 +8,7 @@ import '../domain/monetization/monetization_gateway.dart';
 import '../domain/monetization/monetization_service.dart';
 import '../domain/monetization/monetization_state.dart';
 import 'app_settings.dart';
+import '../domain/monetization/interstitial_ad_manager.dart';
 
 final monetizationGatewayProvider = Provider<MonetizationGateway>(
   (ref) => MonetizationService(),
@@ -23,17 +24,20 @@ class MonetizationController extends Notifier<MonetizationState> {
 
   late MonetizationGateway _gateway;
   late StreamSubscription<PurchaseUpdate> _purchaseSubscription;
+  late final InterstitialAdManager _interstitialManager;
   final interstitialGate = InterstitialGate();
   var _disposed = false;
 
   @override
   MonetizationState build() {
     _gateway = ref.read(monetizationGatewayProvider);
+    _interstitialManager = InterstitialAdManager();
     _purchaseSubscription = _gateway.purchaseUpdates.listen(_handlePurchase);
     ref.onDispose(() {
       _disposed = true;
       unawaited(_purchaseSubscription.cancel());
       unawaited(_gateway.dispose());
+      unawaited(_interstitialManager.dispose());
     });
     unawaited(_initialize());
     return const MonetizationState.initial();
@@ -43,6 +47,7 @@ class MonetizationController extends Notifier<MonetizationState> {
     try {
       await _gateway.initialize();
       if (_disposed) return;
+      await _interstitialManager.initialize();
 
       if (!await _gateway.isAvailable()) {
         state = state.copyWith(isVerifying: false);
@@ -87,8 +92,24 @@ class MonetizationController extends Notifier<MonetizationState> {
     }
   }
 
+  Future<void> showPrivacyOptions() async {
+    try {
+      await _gateway.showPrivacyOptions();
+    } catch (error) {
+      if (!_disposed) state = state.withMessage(_friendlyError(error));
+    }
+  }
+
   void onMeasurementSaved() {
     interstitialGate.recordMeasurementSaved();
+    unawaited(_interstitialManager.preload());
+  }
+
+  Future<void> maybeShowInterstitial() {
+    return _interstitialManager.showIfEligible(
+      gate: interstitialGate,
+      adsRemoved: state.adsRemoved,
+    );
   }
 
   void _handlePurchase(PurchaseUpdate update) {

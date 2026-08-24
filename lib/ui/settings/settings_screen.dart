@@ -12,8 +12,9 @@ import '../../domain/backup/backup_service.dart';
 import '../../domain/notifications/notification_service.dart';
 import '../../domain/standards/growth_standards.dart';
 import '../../state/app_settings.dart';
-import '../monetization/remove_ads_card.dart';
+import '../../state/monetization_provider.dart';
 import '../../state/providers.dart';
+import '../monetization/remove_ads_card.dart';
 
 /// Pengaturan: standar rujukan default, pengingat pengukuran, tentang.
 class SettingsScreen extends ConsumerWidget {
@@ -267,6 +268,16 @@ class SettingsScreen extends ConsumerWidget {
           // ── Bebas iklan ──────────────────────────────────────────────
           const SectionHeader(title: 'Dukungan Arunika'),
           const RemoveAdsCard(),
+          const SizedBox(height: 8),
+          TextButton.icon(
+            onPressed: () async {
+              await ref
+                  .read(monetizationProvider.notifier)
+                  .showPrivacyOptions();
+            },
+            icon: const Icon(Icons.privacy_tip_outlined, size: 18),
+            label: const Text('Kelola opsi privasi iklan'),
+          ),
           const SizedBox(height: 24),
 
           // ── Cadangan & pemulihan ───────────────────────────────────────
@@ -349,7 +360,7 @@ class SettingsScreen extends ConsumerWidget {
                 _AboutRow(
                   title: 'Privasi',
                   body:
-                      'Seluruh data anak tersimpan lokal di perangkat ini dan tidak dikirim ke server mana pun.',
+                      'Data inti anak tersimpan lokal. Iklan dan pembelian diproses oleh layanan pihak ketiga sesuai kebijakan mereka.',
                 ),
                 _AboutRow(
                   title: 'Penafian',

@@ -30,7 +30,12 @@ class MonetizationService implements MonetizationGateway {
     if ((!_config.isRelease || _config.isValidForRelease) &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS)) {
-      await MobileAds.instance.initialize();
+      // Consent must be resolved before the first ad request. If the UMP
+      // service is unavailable or the user has not completed the required
+      // choice, the banner slot remains visible but no ad request is made.
+      if (await _prepareAdConsent()) {
+        await MobileAds.instance.initialize();
+      }
     }
 
     _purchaseSubscription = _store.purchaseStream.listen(
@@ -83,6 +88,26 @@ class MonetizationService implements MonetizationGateway {
     );
   }
 
+  @override
+  Future<void> showPrivacyOptions() async {
+    final mobile =
+        defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+    if (!mobile) return;
+
+    final completed = Completer<FormError?>();
+    try {
+      await ConsentForm.showPrivacyOptionsForm((error) {
+        if (!completed.isCompleted) completed.complete(error);
+      });
+      final error = await completed.future.timeout(const Duration(seconds: 8));
+      if (error != null) throw StateError(error.message);
+    } catch (error) {
+      if (error is StateError) rethrow;
+      throw StateError('Opsi privasi iklan belum tersedia.');
+    }
+  }
+
   Future<void> _handlePurchases(List<PurchaseDetails> purchases) async {
     for (final purchase in purchases) {
       final status = switch (purchase.status) {
@@ -112,6 +137,49 @@ class MonetizationService implements MonetizationGateway {
           // be completed again; never revoke a verified entitlement here.
         }
       }
+    }
+  }
+
+  Future<bool> _prepareAdConsent() async {
+    final information = ConsentInformation.instance;
+    final completed = Completer<void>();
+
+    void finish() {
+      if (!completed.isCompleted) completed.complete();
+    }
+
+    try {
+      information.requestConsentInfoUpdate(
+        ConsentRequestParameters(tagForUnderAgeOfConsent: false),
+        () => unawaited(_showConsentFormIfRequired(finish)),
+        (error) {
+          debugPrint('Arunika consent update: ${error.message}');
+          finish();
+        },
+      );
+      await completed.future.timeout(const Duration(seconds: 8));
+    } catch (error) {
+      debugPrint('Arunika consent unavailable: $error');
+      finish();
+    }
+
+    try {
+      return await information.canRequestAds();
+    } catch (error) {
+      debugPrint('Arunika consent status unavailable: $error');
+      return false;
+    }
+  }
+
+  Future<void> _showConsentFormIfRequired(void Function() onFinished) async {
+    try {
+      await ConsentForm.loadAndShowConsentFormIfRequired((error) {
+        if (error != null) {
+          debugPrint('Arunika consent form: ${error.message}');
+        }
+      });
+    } finally {
+      onFinished();
     }
   }
 

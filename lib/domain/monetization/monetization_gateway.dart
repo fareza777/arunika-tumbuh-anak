@@ -34,5 +34,7 @@ abstract interface class MonetizationGateway {
 
   Future<void> buyRemoveAds();
 
+  Future<void> showPrivacyOptions();
+
   Future<void> dispose();
 }
