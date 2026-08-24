@@ -1,5 +1,9 @@
 # Asset Store Arunika
 
+`feature-graphic.png` adalah feature graphic baru berukuran 1.024 × 500 untuk
+Play Console. Gunakan aset ini, bukan `feature-graphic.jpg` lama yang masih
+memuat positioning pertumbuhan anak.
+
 Delapan screenshot portrait 9:16 (1080 × 1920 px) dari komposisi Remotion
 Editorial Sunrise. Urutkan seperti ini di Google Play:
 

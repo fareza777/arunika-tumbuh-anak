@@ -175,6 +175,34 @@ const storeShots: Array<StoreShotProps & { readonly id: string }> = [
   { id: "08-privacy-ads", kind: "privacy", eyebrow: "DALAM KENDALI", title: "Privat secara default.", detail: "Data lokal. Banner stabil di jelajah. Bebas iklan satu kali US$4.99.", accent: "#DDE8DD" },
 ];
 
+const FeatureGraphic: React.FC = () => {
+  const frame = useCurrentFrame() + 60;
+  return <AbsoluteFill style={{ background: `linear-gradient(122deg, ${palette.ivory} 0%, #F6E7C3 58%, #D9E9DA 100%)`, color: palette.ink, fontFamily: "Arial, sans-serif", overflow: "hidden" }}>
+    <div style={{ background: "rgba(255,255,255,.36)", border: `1px solid rgba(255,255,255,.55)`, borderRadius: 999, height: 580, position: "absolute", right: -170, top: -220, width: 580 }} />
+    <div style={{ background: "rgba(185,102,82,.12)", borderRadius: 999, bottom: -270, height: 520, position: "absolute", right: 210, width: 520 }} />
+    <div style={{ display: "flex", height: "100%", justifyContent: "space-between", padding: "76px 74px", position: "relative" }}>
+      <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", maxWidth: 560, opacity: appear(frame), translate: `0px ${rise(frame, 0, 26)}px` }}>
+        <Brand small />
+        <div style={{ color: palette.terracotta, fontSize: 18, fontWeight: 800, letterSpacing: 3.2, marginTop: 42 }}>RUANG KELUARGA YANG HANGAT</div>
+        <div style={{ fontFamily: "Georgia, serif", fontSize: 53, fontWeight: 700, letterSpacing: -1.4, lineHeight: 1.02, marginTop: 16 }}>Ritual kecil.<br />Momen hangat.<br />Tumbuh bersama.</div>
+        <div style={{ color: palette.muted, fontSize: 21, lineHeight: 1.35, marginTop: 22, maxWidth: 470 }}>Arunika menyimpan cerita yang ingin kalian ingat—privat, sederhana, dan tetap milik keluarga.</div>
+      </div>
+      <div style={{ alignItems: "center", display: "flex", justifyContent: "center", position: "relative", width: 340 }}>
+        <div style={{ background: "rgba(255,253,248,.62)", border: `1px solid ${palette.goldSoft}`, borderRadius: 34, boxShadow: "0 26px 60px rgba(53,41,31,.12)", height: 290, position: "relative", rotate: "7deg", width: 290 }}>
+          <div style={{ alignItems: "center", display: "flex", flexDirection: "column", height: "100%", justifyContent: "center", position: "relative" }}>
+            <div style={{ alignItems: "center", background: `linear-gradient(135deg, ${palette.goldSoft}, ${palette.terracotta})`, borderRadius: 999, color: palette.ink, display: "flex", fontSize: 28, fontWeight: 800, height: 62, justifyContent: "center", width: 62 }}>A</div>
+            <div style={{ color: palette.ink, fontFamily: "Georgia, serif", fontSize: 30, fontWeight: 700, marginTop: 13 }}>Arunika</div>
+            <div style={{ color: palette.muted, fontSize: 13, marginTop: 7 }}>Tumbuh Bersama</div>
+            <div style={{ display: "flex", gap: 9, marginTop: 29 }}><MiniChip accent={palette.terracotta}>Momen</MiniChip><MiniChip accent={palette.sage}>Ritual</MiniChip></div>
+          </div>
+        </div>
+        <div style={{ alignItems: "center", background: palette.sage, border: "5px solid rgba(255,253,248,.72)", borderRadius: 999, bottom: 22, color: palette.paper, display: "flex", fontSize: 21, height: 72, justifyContent: "center", position: "absolute", right: 13, width: 72 }}>✦</div>
+      </div>
+    </div>
+    <div style={{ bottom: 27, color: palette.muted, fontSize: 14, fontWeight: 800, left: 74, letterSpacing: 1.2, position: "absolute" }}>ARUNIKA · TUMBUH BERSAMA</div>
+  </AbsoluteFill>;
+};
+
 export const MyComposition = () => <Composition id="ArunikaPromo" component={ArunikaPromo} durationInFrames={32 * 30} fps={30} height={1080} width={1920} />;
 
-export const StoreCompositions = () => <Folder name="Store-Screenshots">{storeShots.map((shot) => <Still key={shot.id} id={shot.id} component={StoreShot} width={1080} height={1920} defaultProps={shot} />)}</Folder>;
+export const StoreCompositions = () => <Folder name="Store-Screenshots"><Still id="feature-graphic" component={FeatureGraphic} width={1024} height={500} />{storeShots.map((shot) => <Still key={shot.id} id={shot.id} component={StoreShot} width={1080} height={1920} defaultProps={shot} />)}</Folder>;
