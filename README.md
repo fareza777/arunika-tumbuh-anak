@@ -65,7 +65,7 @@ Format file tersebut:
 }
 ```
 
-Kebijakan privasi publik ada di [docs/privacy-policy.html](docs/privacy-policy.html).
+Kebijakan privasi publik ada di [docs/privacy-policy.html](docs/privacy-policy.html) dan tersedia langsung di [URL publik](https://raw.githubusercontent.com/fareza777/arunika-tumbuh-anak/main/docs/privacy-policy.html).
 
 Ikon launcher dibuat ulang bila perlu dengan:
 

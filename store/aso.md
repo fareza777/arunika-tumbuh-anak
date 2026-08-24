@@ -7,7 +7,7 @@
 - **Kategori:** Health & Fitness
 - **Audiens utama:** orang tua, wali, dan pengasuh anak
 - **Bahasa utama:** Bahasa Indonesia
-- **URL kebijakan privasi:** `https://fareza777.github.io/arunika-tumbuh-anak/privacy-policy.html`
+- **URL kebijakan privasi:** `https://raw.githubusercontent.com/fareza777/arunika-tumbuh-anak/main/docs/privacy-policy.html`
 - **Harga fitur premium:** pembelian satu kali US$4.99 untuk menghapus iklan; harga lokal mengikuti Google Play
 
 ### Judul (maks. 30 karakter)
