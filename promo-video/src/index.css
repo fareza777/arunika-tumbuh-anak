@@ -1,0 +1,18 @@
+html,
+body,
+#remotion-root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+  width: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: #f8f5ed;
+  font-family: Arial, Helvetica, sans-serif;
+}

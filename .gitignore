@@ -36,9 +36,13 @@ migrate_working_dir/
 
 # Local release credentials/identifiers; never commit production ad IDs.
 /tool/release/*.json
+/tool/release/*.jks
+/tool/release/*.properties
+/android/key.properties
 
 # Rendered media can be regenerated from the Remotion project.
 /promo-video/out/
+/promo-video/preview-*.png
 
 # Temporary emulator captures used while composing store assets.
 /store/assets/raw/
