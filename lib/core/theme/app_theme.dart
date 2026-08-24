@@ -239,6 +239,8 @@ class AppTheme {
           TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
         },
       ),
+      splashFactory: NoSplash.splashFactory,
+      visualDensity: VisualDensity.standard,
     );
   }
 }

@@ -13,7 +13,7 @@ class AppDatabase {
     final path = p.join(await getDatabasesPath(), 'arunika.db');
     _db = await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onConfigure: (db) async => db.execute('PRAGMA foreign_keys = ON'),
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
@@ -28,6 +28,17 @@ class AppDatabase {
         'ALTER TABLE children ADD COLUMN gestational_weeks INTEGER',
       );
       await _createNutritionLogTable(db);
+    }
+    if (oldVersion < 3) {
+      await _createTogetherTables(db);
+      // A legacy display name can safely become a family member label. No
+      // measurement or clinical field is copied into the new product slice.
+      await db.execute('''
+        INSERT OR IGNORE INTO family_members
+          (id, name, role, color_key, photo_path, created_at)
+        SELECT id, name, 'family', 'sunrise', photo_path, created_at
+        FROM children
+      ''');
     }
   }
 
@@ -103,6 +114,63 @@ class AppDatabase {
     ''');
 
     await _createNutritionLogTable(db);
+    await _createTogetherTables(db);
+  }
+
+  Future<void> _createTogetherTables(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS family_members (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        role TEXT NOT NULL DEFAULT 'family',
+        color_key TEXT NOT NULL DEFAULT 'sunrise',
+        photo_path TEXT,
+        created_at INTEGER NOT NULL
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS rituals (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        description TEXT,
+        time_of_day TEXT NOT NULL DEFAULT 'anytime',
+        repeat_days TEXT NOT NULL DEFAULT '1,2,3,4,5,6,7',
+        accent_key TEXT NOT NULL DEFAULT 'sage',
+        is_archived INTEGER NOT NULL DEFAULT 0,
+        created_at INTEGER NOT NULL
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS ritual_checkins (
+        ritual_id TEXT NOT NULL,
+        day_key TEXT NOT NULL,
+        completed_at INTEGER NOT NULL,
+        PRIMARY KEY (ritual_id, day_key),
+        FOREIGN KEY (ritual_id) REFERENCES rituals (id) ON DELETE CASCADE
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS moments (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        note TEXT NOT NULL,
+        tag TEXT NOT NULL DEFAULT 'together',
+        member_id TEXT,
+        photo_path TEXT,
+        captured_at INTEGER NOT NULL,
+        created_at INTEGER NOT NULL,
+        FOREIGN KEY (member_id) REFERENCES family_members (id) ON DELETE SET NULL
+      )
+    ''');
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_moments_captured_at ON moments (captured_at DESC)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_ritual_checkins_day ON ritual_checkins (day_key)',
+    );
   }
 
   Future<void> close() async {

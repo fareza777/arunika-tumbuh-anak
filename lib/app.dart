@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/theme/app_theme.dart';
+import 'state/app_settings.dart';
 import 'state/monetization_provider.dart';
 import 'ui/splash/splash_screen.dart';
 
@@ -10,9 +11,9 @@ import 'ui/splash/splash_screen.dart';
 class AppIdentity {
   AppIdentity._();
   static const String name = 'Arunika';
-  static const String tagline = 'Tumbuh Kembang Anak';
-  static const String fullName = 'Arunika: Tumbuh Kembang Anak';
-  static const String version = '1.2.0';
+  static const String tagline = 'Tumbuh Bersama';
+  static const String fullName = 'Arunika: Tumbuh Bersama';
+  static const String version = '1.3.0';
 }
 
 class ArunikaApp extends ConsumerWidget {
@@ -23,6 +24,7 @@ class ArunikaApp extends ConsumerWidget {
     // Start billing/ads verification before the first feature screen is shown;
     // the controller itself remains non-blocking and returns an initial state.
     ref.watch(monetizationProvider);
+    final settings = ref.watch(settingsProvider);
 
     return MaterialApp(
       title: AppIdentity.fullName,
@@ -40,9 +42,12 @@ class ArunikaApp extends ConsumerWidget {
         final scaler = MediaQuery.textScalerOf(context);
         final clamped = scaler.scale(1.0).clamp(1.0, 1.3).toDouble();
         return MediaQuery(
-          data: MediaQuery.of(
-            context,
-          ).copyWith(textScaler: TextScaler.linear(clamped)),
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(clamped),
+            disableAnimations:
+                MediaQuery.of(context).disableAnimations ||
+                settings.reducedMotion,
+          ),
           child: child ?? const SizedBox.shrink(),
         );
       },

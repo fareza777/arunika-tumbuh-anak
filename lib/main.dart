@@ -4,8 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
-import 'domain/demo/demo_seed.dart';
-import 'domain/notifications/notification_service.dart';
 import 'state/app_settings.dart';
 
 Future<void> main() async {
@@ -22,8 +20,6 @@ Future<void> main() async {
   );
 
   final prefs = await SharedPreferences.getInstance();
-  await NotificationService.instance.init();
-  await DemoSeed.seedIfEnabled(prefs);
 
   runApp(
     ProviderScope(

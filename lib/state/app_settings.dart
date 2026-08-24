@@ -8,6 +8,10 @@ class AppSettings {
   const AppSettings({
     this.standard = GrowthStandard.whoAuto,
     this.onboardingDone = false,
+    this.togetherOnboardingDone = false,
+    this.familyName = 'Keluarga',
+    this.reducedMotion = false,
+    this.adsRemoved = false,
     this.reminderEnabled = false,
     this.reminderIntervalWeeks = 4,
     this.reminderHour = 8,
@@ -16,6 +20,10 @@ class AppSettings {
 
   final GrowthStandard standard;
   final bool onboardingDone;
+  final bool togetherOnboardingDone;
+  final String familyName;
+  final bool reducedMotion;
+  final bool adsRemoved;
 
   /// Pengingat jadwal pengukuran.
   final bool reminderEnabled;
@@ -26,6 +34,10 @@ class AppSettings {
   AppSettings copyWith({
     GrowthStandard? standard,
     bool? onboardingDone,
+    bool? togetherOnboardingDone,
+    String? familyName,
+    bool? reducedMotion,
+    bool? adsRemoved,
     bool? reminderEnabled,
     int? reminderIntervalWeeks,
     int? reminderHour,
@@ -34,6 +46,11 @@ class AppSettings {
     return AppSettings(
       standard: standard ?? this.standard,
       onboardingDone: onboardingDone ?? this.onboardingDone,
+      togetherOnboardingDone:
+          togetherOnboardingDone ?? this.togetherOnboardingDone,
+      familyName: familyName ?? this.familyName,
+      reducedMotion: reducedMotion ?? this.reducedMotion,
+      adsRemoved: adsRemoved ?? this.adsRemoved,
       reminderEnabled: reminderEnabled ?? this.reminderEnabled,
       reminderIntervalWeeks:
           reminderIntervalWeeks ?? this.reminderIntervalWeeks,
@@ -51,6 +68,10 @@ final sharedPrefsProvider = Provider<SharedPreferences>(
 class SettingsNotifier extends Notifier<AppSettings> {
   static const _kStandard = 'standard';
   static const _kOnboarding = 'onboarding_done';
+  static const _kTogetherOnboarding = 'together_onboarding_done';
+  static const _kFamilyName = 'family_name';
+  static const _kReducedMotion = 'reduced_motion';
+  static const _kAdsRemoved = 'ads_removed_hint';
   static const _kReminderEnabled = 'reminder_enabled';
   static const _kReminderWeeks = 'reminder_weeks';
   static const _kReminderHour = 'reminder_hour';
@@ -63,6 +84,10 @@ class SettingsNotifier extends Notifier<AppSettings> {
     return AppSettings(
       standard: GrowthStandard.values[_prefs.getInt(_kStandard) ?? 0],
       onboardingDone: _prefs.getBool(_kOnboarding) ?? false,
+      togetherOnboardingDone: _prefs.getBool(_kTogetherOnboarding) ?? false,
+      familyName: _prefs.getString(_kFamilyName) ?? 'Keluarga',
+      reducedMotion: _prefs.getBool(_kReducedMotion) ?? false,
+      adsRemoved: _prefs.getBool(_kAdsRemoved) ?? false,
       reminderEnabled: _prefs.getBool(_kReminderEnabled) ?? false,
       reminderIntervalWeeks: _prefs.getInt(_kReminderWeeks) ?? 4,
       reminderHour: _prefs.getInt(_kReminderHour) ?? 8,
@@ -74,6 +99,10 @@ class SettingsNotifier extends Notifier<AppSettings> {
     state = next;
     await _prefs.setInt(_kStandard, next.standard.index);
     await _prefs.setBool(_kOnboarding, next.onboardingDone);
+    await _prefs.setBool(_kTogetherOnboarding, next.togetherOnboardingDone);
+    await _prefs.setString(_kFamilyName, next.familyName);
+    await _prefs.setBool(_kReducedMotion, next.reducedMotion);
+    await _prefs.setBool(_kAdsRemoved, next.adsRemoved);
     await _prefs.setBool(_kReminderEnabled, next.reminderEnabled);
     await _prefs.setInt(_kReminderWeeks, next.reminderIntervalWeeks);
     await _prefs.setInt(_kReminderHour, next.reminderHour);

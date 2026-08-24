@@ -11,6 +11,8 @@ class AppColors {
   static const Color pearl = Color(0xFFFDFBF6);
   static const Color surface = Color(0xFFFFFFFF);
   static const Color cream = Color(0xFFF4EDDE);
+  static const Color paper = Color(0xFFFFFCF5);
+  static const Color espresso = Color(0xFF35291F);
 
   // ── Tinta (teks) ───────────────────────────────────────────────────────
   static const Color ink = Color(0xFF2D2820);
@@ -26,6 +28,15 @@ class AppColors {
   static const Color goldDeep = Color(0xFF7E6220);
   static const Color goldSoft = Color(0xFFEBDCAF);
   static const Color goldMist = Color(0xFFF8F1DE);
+
+  // ── Editorial Sunrise accents ─────────────────────────────────────────
+  static const Color sage = Color(0xFF78927D);
+  static const Color sageDeep = Color(0xFF4D6C58);
+  static const Color sageMist = Color(0xFFE9F0E8);
+  static const Color terracotta = Color(0xFFC6765E);
+  static const Color terracottaDeep = Color(0xFF995442);
+  static const Color terracottaMist = Color(0xFFF8E8DF);
+  static const Color lavenderMist = Color(0xFFEDE8F0);
 
   // ── Aksen jenis kelamin ────────────────────────────────────────────────
   static const Color boy = Color(0xFF5E9CC6);
@@ -60,6 +71,24 @@ class AppColors {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [Color(0xFFF3E5BC), Color(0xFFE3CE93)],
+  );
+
+  static const LinearGradient sunrise = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFFFE9B9), Color(0xFFF3C980), Color(0xFFE09D72)],
+  );
+
+  static const LinearGradient sageGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFC8D9C4), Color(0xFF78927D)],
+  );
+
+  static const LinearGradient terracottaMistGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFFFE7DC), Color(0xFFF2C8B8)],
   );
 
   static const LinearGradient boyGradient = LinearGradient(

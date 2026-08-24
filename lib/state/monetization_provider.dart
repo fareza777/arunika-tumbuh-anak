@@ -47,6 +47,11 @@ class MonetizationController extends Notifier<MonetizationState> {
     try {
       await _gateway.initialize();
       if (_disposed) return;
+      if (ref.read(sharedPrefsProvider).getBool(_entitlementHintKey) == true) {
+        // Hint lokal menyembunyikan banner segera setelah restart while the
+        // store still verifies the entitlement in the background.
+        state = state.copyWith(adsRemoved: true);
+      }
       await _interstitialManager.initialize();
 
       if (!await _gateway.isAvailable()) {
@@ -63,7 +68,11 @@ class MonetizationController extends Notifier<MonetizationState> {
       );
 
       await _gateway.restorePurchases();
-      if (_disposed || state.adsRemoved) return;
+      if (_disposed) return;
+      if (state.adsRemoved) {
+        state = state.copyWith(isVerifying: false);
+        return;
+      }
       state = state.copyWith(isVerifying: false);
     } catch (error) {
       if (_disposed) return;
@@ -101,7 +110,11 @@ class MonetizationController extends Notifier<MonetizationState> {
   }
 
   void onMeasurementSaved() {
-    interstitialGate.recordMeasurementSaved();
+    onMeaningfulSave();
+  }
+
+  void onMeaningfulSave() {
+    interstitialGate.recordMeaningfulSave();
     unawaited(_interstitialManager.preload());
   }
 

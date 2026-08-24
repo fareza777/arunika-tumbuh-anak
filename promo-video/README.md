@@ -1,54 +1,26 @@
-# Remotion video
+# Arunika: Tumbuh Bersama — Promo Video
 
-<p align="center">
-  <a href="https://github.com/remotion-dev/logo">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-dark.apng">
-      <img alt="Animated Remotion Logo" src="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-light.gif">
-    </picture>
-  </a>
-</p>
-
-Welcome to your Remotion project!
+Promo ini memperkenalkan Arunika sebagai ruang privat untuk ritual dan momen
+keluarga. Komposisi landscape memakai narasi tujuh scene; folder
+`Store-Screenshots` menyediakan delapan still portrait untuk listing Play
+Store.
 
 ## Commands
 
-**Install Dependencies**
-
-```console
+```powershell
 npm i
+npm run lint
+npx remotion studio --no-open
+npx remotion render ArunikaPromo ../store/arunika-promo.mp4
 ```
 
-**Start Preview**
+Untuk merender screenshot store:
 
-```console
-npm run dev
+```powershell
+$shots = @('01-today','02-rituals','03-ritual-editor','04-moments','05-moment-editor','06-garden','07-scrapbook','08-privacy-ads')
+foreach ($shot in $shots) { npx remotion still $shot --output "../store/assets/$shot.png" }
 ```
 
-**Render video**
-
-```console
-npx remotion render
-```
-
-**Upgrade Remotion**
-
-```console
-npx remotion upgrade
-```
-
-## Docs
-
-Get started with Remotion by reading the [fundamentals page](https://www.remotion.dev/docs/the-fundamentals).
-
-## Help
-
-We provide help on our [Discord server](https://discord.gg/6VzzNDwUwV).
-
-## Issues
-
-Found an issue with Remotion? [File an issue here](https://github.com/remotion-dev/remotion/issues/new).
-
-## License
-
-Note that for some entities a company license is needed. [Read the terms here](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md).
+Semua frame memakai palet ivory, espresso, champagne, terracotta, dan sage
+yang sama dengan aplikasi Flutter. Headline dibuat besar dan singkat agar
+terbaca pada thumbnail tanpa klaim kesehatan atau janji hasil.

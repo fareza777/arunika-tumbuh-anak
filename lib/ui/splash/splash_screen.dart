@@ -6,14 +6,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme.dart';
-import '../../domain/notifications/notification_service.dart';
 import '../../state/app_settings.dart';
-import '../../state/providers.dart';
+import '../../state/together_providers.dart';
 import '../navigation/main_shell.dart';
 import '../onboarding/onboarding_screen.dart';
 
-/// Splash screen: matahari terbit emas (nama "Arunika" = cahaya pagi),
-/// sambil memuat tabel standar dan data anak.
+/// Splash screen matahari terbit emas (nama "Arunika" = cahaya pagi),
+/// sambil memuat ruang keluarga, ritual, dan momen lokal.
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
@@ -37,30 +36,15 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   Future<void> _bootstrap() async {
     final results = await Future.wait([
-      ref.read(standardsProvider.future),
-      ref.read(childrenProvider.future),
+      ref.read(familyMembersProvider.future),
+      ref.read(ritualsProvider.future),
+      ref.read(momentsProvider.future),
       Future<void>.delayed(const Duration(milliseconds: 2100)),
     ]).catchError((_) => <Object?>[]);
     results; // data sudah tercache di provider
 
-    // Jadwalkan ulang pengingat setiap aplikasi dibuka agar tidak pernah
-    // kedaluwarsa (jadwal sistem dibatasi 8 kejadian ke depan).
-    try {
-      final settings = ref.read(settingsProvider);
-      if (settings.reminderEnabled) {
-        await NotificationService.instance.scheduleMeasurementReminders(
-          intervalWeeks: settings.reminderIntervalWeeks,
-          hour: settings.reminderHour,
-          minute: settings.reminderMinute,
-          childName: ref.read(selectedChildProvider)?.name ?? '',
-        );
-      }
-    } catch (_) {
-      // Kegagalan penjadwalan tidak boleh menggagalkan aplikasi.
-    }
-
     if (!mounted) return;
-    final onboardingDone = ref.read(settingsProvider).onboardingDone;
+    final onboardingDone = ref.read(settingsProvider).togetherOnboardingDone;
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         transitionDuration: const Duration(milliseconds: 600),

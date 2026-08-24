@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/widgets/premium_nav.dart';
-import '../../state/providers.dart';
-import '../charts/growth_charts_screen.dart';
-import '../history/history_screen.dart';
-import '../home/home_screen.dart';
-import '../measure/add_measurement_screen.dart';
-import '../menu/menu_screen.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_motion.dart';
+import '../../core/theme/app_theme.dart';
 import '../monetization/stable_banner_ad.dart';
+import '../together/garden_screen.dart';
+import '../together/moment_editor_screen.dart';
+import '../together/moments_screen.dart';
+import '../together/ritual_editor_sheet.dart';
+import '../together/rituals_screen.dart';
+import '../together/today_screen.dart';
 
-/// Kerangka utama: 4 tab + tombol emas tengah untuk tambah pengukuran.
 class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key});
 
@@ -20,51 +22,29 @@ class MainShell extends ConsumerStatefulWidget {
 
 class _MainShellState extends ConsumerState<MainShell> {
   var _index = 0;
+  var _showActions = false;
 
-  static const _items = [
-    NavItem(
-      icon: Icons.home_outlined,
-      activeIcon: Icons.home_rounded,
-      label: 'Beranda',
-    ),
-    NavItem(
-      icon: Icons.show_chart_rounded,
-      activeIcon: Icons.insights_rounded,
-      label: 'Grafik',
-    ),
-    NavItem(
-      icon: Icons.history_rounded,
-      activeIcon: Icons.history_toggle_off_rounded,
-      label: 'Riwayat',
-    ),
-    NavItem(
-      icon: Icons.grid_view_outlined,
-      activeIcon: Icons.grid_view_rounded,
-      label: 'Menu',
-    ),
-  ];
+  Future<void> _openMoment() async {
+    setState(() => _showActions = false);
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const MomentEditorScreen()));
+  }
 
-  static const _pages = [
-    HomeScreen(),
-    GrowthChartsScreen(),
-    HistoryScreen(),
-    MenuScreen(),
-  ];
-
-  Future<void> _openAddMeasurement() async {
-    final child = ref.read(selectedChildProvider);
-    if (child == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tambahkan profil anak terlebih dahulu.')),
-      );
-      return;
-    }
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const AddMeasurementScreen(),
-        fullscreenDialog: true,
-      ),
+  Future<void> _openRitual() async {
+    setState(() => _showActions = false);
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => const RitualEditorSheet(),
     );
+  }
+
+  void _select(int index) {
+    setState(() {
+      _index = index;
+      _showActions = false;
+    });
   }
 
   @override
@@ -73,20 +53,293 @@ class _MainShellState extends ConsumerState<MainShell> {
       body: Column(
         children: [
           Expanded(
-            child: IndexedStack(index: _index, children: _pages),
+            child: IndexedStack(
+              index: _index,
+              children: [
+                TodayScreen(
+                  onOpenMoment: _openMoment,
+                  onOpenRitual: _openRitual,
+                  onOpenGarden: () => _select(3),
+                ),
+                RitualsScreen(onOpenRitual: _openRitual),
+                MomentsScreen(onOpenMoment: _openMoment),
+                const GardenScreen(),
+              ],
+            ),
           ),
-          const Padding(
-            padding: EdgeInsets.only(bottom: 28),
+          const SafeArea(
+            top: false,
             child: StableBannerAd(placement: BannerPlacement.mainShell),
           ),
         ],
       ),
-      floatingActionButton: GoldFab(onPressed: _openAddMeasurement),
+      floatingActionButton: _ActionRail(
+        expanded: _showActions,
+        onToggle: () => setState(() => _showActions = !_showActions),
+        onMoment: _openMoment,
+        onRitual: _openRitual,
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: PremiumNavBar(
-        items: _items,
-        currentIndex: _index,
-        onTap: (i) => setState(() => _index = i),
+      bottomNavigationBar: _TogetherNavBar(index: _index, onTap: _select),
+    );
+  }
+}
+
+class _TogetherNavBar extends StatelessWidget {
+  const _TogetherNavBar({required this.index, required this.onTap});
+
+  final int index;
+  final ValueChanged<int> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.paper,
+        border: const Border(top: BorderSide(color: AppColors.hairline)),
+        boxShadow: AppColors.softShadow(opacity: 0.08, blur: 22, y: -6),
+      ),
+      padding: EdgeInsets.only(
+        left: 10,
+        right: 10,
+        top: 8,
+        bottom: MediaQuery.paddingOf(context).bottom + 8,
+      ),
+      child: Row(
+        children: [
+          _NavItem(
+            icon: PhosphorIconsLight.sun,
+            activeIcon: PhosphorIconsFill.sun,
+            label: 'Hari Ini',
+            active: index == 0,
+            onTap: () => onTap(0),
+          ),
+          _NavItem(
+            icon: PhosphorIconsLight.listChecks,
+            activeIcon: PhosphorIconsFill.listChecks,
+            label: 'Ritual',
+            active: index == 1,
+            onTap: () => onTap(1),
+          ),
+          const SizedBox(width: 78),
+          _NavItem(
+            icon: PhosphorIconsLight.images,
+            activeIcon: PhosphorIconsFill.images,
+            label: 'Momen',
+            active: index == 2,
+            onTap: () => onTap(2),
+          ),
+          _NavItem(
+            icon: PhosphorIconsLight.treeStructure,
+            activeIcon: PhosphorIconsFill.treeStructure,
+            label: 'Taman',
+            active: index == 3,
+            onTap: () => onTap(3),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  const _NavItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.active,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = active ? AppColors.terracottaDeep : AppColors.inkFaint;
+    return Expanded(
+      child: Semantics(
+        selected: active,
+        button: true,
+        label: label,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 3),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AnimatedContainer(
+                  duration: AppMotion.duration(
+                    context,
+                    const Duration(milliseconds: 220),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: active
+                        ? AppColors.terracottaMist
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: PhosphorIcon(
+                    active ? activeIcon : icon,
+                    size: 21,
+                    color: color,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  label,
+                  style: AppTheme.sans(
+                    size: 10,
+                    weight: active ? FontWeight.w800 : FontWeight.w600,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionRail extends StatelessWidget {
+  const _ActionRail({
+    required this.expanded,
+    required this.onToggle,
+    required this.onMoment,
+    required this.onRitual,
+  });
+
+  final bool expanded;
+  final VoidCallback onToggle;
+  final VoidCallback onMoment;
+  final VoidCallback onRitual;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AnimatedSwitcher(
+          duration: AppMotion.duration(
+            context,
+            const Duration(milliseconds: 220),
+          ),
+          transitionBuilder: (child, animation) =>
+              ScaleTransition(scale: animation, child: child),
+          child: expanded
+              ? Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _QuickAction(
+                        icon: PhosphorIconsLight.images,
+                        label: 'Catat momen',
+                        color: AppColors.terracotta,
+                        onTap: onMoment,
+                      ),
+                      const SizedBox(width: 10),
+                      _QuickAction(
+                        icon: PhosphorIconsLight.listChecks,
+                        label: 'Buat ritual',
+                        color: AppColors.sageDeep,
+                        onTap: onRitual,
+                      ),
+                    ],
+                  ),
+                )
+              : const SizedBox.shrink(),
+        ),
+        Semantics(
+          button: true,
+          label: expanded ? 'Tutup aksi cepat' : 'Buka aksi cepat',
+          child: GestureDetector(
+            onTap: onToggle,
+            child: AnimatedContainer(
+              duration: AppMotion.duration(
+                context,
+                const Duration(milliseconds: 280),
+              ),
+              curve: AppMotion.spring,
+              width: 62,
+              height: 62,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: expanded
+                    ? AppColors.terracottaMistGradient
+                    : AppColors.sunrise,
+                border: Border.all(color: AppColors.paper, width: 5),
+                boxShadow: AppColors.softShadow(opacity: 0.18, blur: 24, y: 10),
+              ),
+              child: Center(
+                child: PhosphorIcon(
+                  expanded ? PhosphorIconsLight.x : PhosphorIconsLight.plus,
+                  size: 27,
+                  color: expanded
+                      ? AppColors.terracottaDeep
+                      : AppColors.espresso,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _QuickAction extends StatelessWidget {
+  const _QuickAction({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.paper,
+      borderRadius: BorderRadius.circular(18),
+      elevation: 3,
+      shadowColor: AppColors.ink.withValues(alpha: 0.12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 10, 12, 9),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              PhosphorIcon(icon, size: 23, color: color),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: AppTheme.sans(
+                  size: 9.5,
+                  weight: FontWeight.w800,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

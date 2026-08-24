@@ -1,10 +1,11 @@
 import "./index.css";
-import { MyComposition } from "./Composition";
+import { MyComposition, StoreCompositions } from "./Composition";
 
 export const RemotionRoot: React.FC = () => {
   return (
     <>
       <MyComposition />
+      <StoreCompositions />
     </>
   );
 };

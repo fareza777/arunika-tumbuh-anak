@@ -1,53 +1,49 @@
-# Arunika — Tumbuh Kembang Anak
+# Arunika: Tumbuh Bersama
 
-Aplikasi Android premium (Flutter) untuk memantau tinggi & berat badan anak,
-dengan standar rujukan resmi dan klasifikasi sesuai aturan Indonesia.
+Arunika adalah ruang privat offline-first untuk keluarga yang ingin merayakan
+ritual kecil, menyimpan momen hangat, dan melihat cerita kebersamaan tumbuh
+dari hari ke hari.
 
-**Arunika** (bahasa Sanskerta/Jawa: *cahaya matahari pagi*) — setiap
-pengukuran adalah cahaya kecil yang menuntun tumbuh kembang anak.
+Arunika tidak meminta akun, tidak memerlukan koneksi untuk catatan inti, dan
+tidak mengubah cerita keluarga menjadi target atau penilaian. Data inti
+tersimpan lokal di perangkat; pengguna memilih sendiri ketika ingin berbagi
+atau mengekspor scrapbook.
 
-## Fitur
+## Fitur utama
 
-- **Multi-profil anak** dengan foto, jenis kelamin, data lahir, dan tinggi orang tua.
-- **Grafik pertumbuhan interaktif** (pinch-zoom & geser) dengan pita zona ala KMS:
-  - WHO Child Growth Standards 2006 (0-5 tahun)
-  - WHO Growth Reference 2007 (5-19 tahun)
-  - CDC Growth Charts 2000 (2-20 tahun)
-  - Mode otomatis yang memilih standar terbaik sesuai usia.
-- **Z-score & persentil** dihitung dengan rumus LMS resmi, termasuk koreksi
-  ekor WHO untuk nilai ekstrem (|z| > 3).
-- **Klasifikasi status gizi** sesuai Permenkes RI No. 2 Tahun 2020
-  (BB/U, TB/U, BB/TB, IMT/U, LK/U, LILA) lengkap dengan saran untuk orang tua.
-- **Insight & prediksi**: kecepatan tumbuh (velocity), estimasi tinggi dewasa
-  (jalur tumbuh + target genetik dari tinggi orang tua).
-- **Milestone perkembangan** (52 item, 4 kategori) dengan penanda keterlambatan.
-- **Jadwal imunisasi** program nasional Kemenkes + rekomendasi tambahan IDAI.
-- **Laporan PDF premium** — kurva digambar sebagai vektor, siap dibawa ke dokter.
-- **Pengingat pengukuran** via notifikasi lokal (mingguan / 2-mingguan / bulanan).
-- **Offline-first & privat** — data inti tersimpan lokal (SQLite), tanpa server Arunika.
-  Versi gratis memakai Google AdMob untuk iklan; pembelian satu kali melalui Google
-  Play Billing tersedia untuk menghapus iklan.
+- **Hari Ini** — sapaan sunrise, progres ritual, recap mingguan, dan momen
+  terbaru dalam satu halaman bento yang tenang.
+- **Ritual** — buat kebiasaan berulang dengan hari, waktu, dan nuansa pilihan;
+  rayakan dengan satu ketukan tanpa streak yang menghakimi.
+- **Momen** — simpan judul, satu cerita, tag suasana, anggota yang hadir, dan
+  foto opsional dari galeri perangkat.
+- **Taman** — visualisasi constellation sederhana yang menghubungkan orang,
+  ritual, dan momen yang sudah dirayakan.
+- **Scrapbook PDF** — ekspor kenangan dan ritual menjadi dokumen yang bisa
+  dibagikan atau dicetak ketika keluarga menginginkannya.
+- **Privasi lokal** — tidak ada server Arunika untuk menyimpan catatan keluarga;
+  foto hanya dipakai ketika pengguna memilihnya.
+- **Bebas Iklan** — versi gratis memakai banner AdMob yang stabil di area jelajah;
+  satu pembelian US$4.99 menghapus iklan dan dapat dipulihkan melalui Google Play.
 
-## Sumber data resmi
+## Teknologi
 
-Tabel LMS asli (bukan aproksimasi) dibundel sebagai aset JSON di
-`assets/standards/`, dihasilkan oleh pipeline di `tool/standards/` dari berkas
-resmi WHO (who.int) dan CDC (cdc.gov), dengan 23 pemeriksaan verifikasi nilai.
+Flutter, Riverpod, SQLite/sqflite, Phosphor Icons, Fraunces, Plus Jakarta Sans,
+image_picker, pdf/printing, Google Mobile Ads, dan Google Play Billing.
 
 ## Menjalankan & mem-build
 
-Prasyarat: Flutter SDK 3.44+ dan Android SDK (via Android Studio).
+Prasyarat: Flutter SDK 3.44+ dan Android SDK.
 
 ```powershell
 flutter pub get
-flutter analyze        # harus: No issues found!
-flutter test           # 21 unit test mesin z-score & klasifikasi
-flutter run            # mode debug di perangkat/emulator
-flutter build apk --release        # APK release
-flutter build appbundle --release  # AAB untuk Play Store
+flutter analyze
+flutter test
+flutter run
+flutter build appbundle --release
 ```
 
-Untuk build release dengan ID iklan produksi, gunakan file lokal yang tidak
+Untuk build release dengan ID AdMob produksi gunakan file lokal yang tidak
 di-commit:
 
 ```powershell
@@ -55,39 +51,27 @@ flutter build appbundle --release `
   --dart-define-from-file=tool/release/monetization.json
 ```
 
-Format file tersebut:
+Kebijakan privasi publik: [docs/privacy-policy.html](docs/privacy-policy.html)
+dan [URL publik](https://raw.githubusercontent.com/fareza777/arunika-tumbuh-anak/main/docs/privacy-policy.html).
 
-```json
-{
-  "ADMOB_APP_ID": "ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy",
-  "ADMOB_BANNER_ID": "ca-app-pub-xxxxxxxxxxxxxxxx/aaaaaaaaaa",
-  "ADMOB_INTERSTITIAL_ID": "ca-app-pub-xxxxxxxxxxxxxxxx/bbbbbbbbbb"
-}
-```
+## Struktur kode aktif
 
-Kebijakan privasi publik ada di [docs/privacy-policy.html](docs/privacy-policy.html) dan tersedia langsung di [URL publik](https://raw.githubusercontent.com/fareza777/arunika-tumbuh-anak/main/docs/privacy-policy.html).
-
-Ikon launcher dibuat ulang bila perlu dengan:
-
-```powershell
-dart run flutter_launcher_icons
-```
-
-## Struktur kode
-
-```
+```text
 lib/
-  core/        tema light-luxury, widget desain, util format Indonesia
-  data/        model, SQLite (sqflite), repositori
-  domain/      mesin LMS, resolusi standar, klasifikasi Permenkes,
-               insight (velocity & prediksi), konten milestone/imunisasi,
-               notifikasi, generator PDF
-  state/       Riverpod providers & pengaturan persisten
-  ui/          splash, onboarding, home, grafik, riwayat, insight,
-               milestone, imunisasi, laporan, pengaturan
+  core/      tema Editorial Sunrise dan widget desain reusable
+  data/      model SQLite untuk keluarga, ritual, check-in, dan momen
+  domain/    recap lokal, scrapbook PDF, monetisasi, dan layanan inti
+  state/     Riverpod providers, preferensi lokal, dan aksi produk
+  ui/        splash, onboarding, Hari Ini, Ritual, Momen, Taman, settings
 ```
 
-## Penafian
+Kode legacy pengukuran tetap berada di repository untuk migrasi data perangkat
+lama, tetapi tidak lagi dijangkau dari shell dan onboarding produk aktif.
 
-Aplikasi ini alat bantu pemantauan, bukan pengganti diagnosis tenaga
-kesehatan. Selalu konsultasikan kondisi anak ke dokter/bidan.
+## Catatan rilis
+
+- Package ID tetap `id.arunika.arunika_growth` agar pembaruan aplikasi lama
+  tetap dapat dipasang.
+- Store positioning: **Lifestyle / Family Journal**, bukan aplikasi kesehatan.
+- Banner hanya berada di browse shell dengan slot tinggi yang dicadangkan;
+  compose momen dan ritual bebas iklan.

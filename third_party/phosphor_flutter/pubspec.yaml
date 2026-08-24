@@ -1,0 +1,13 @@
+name: phosphor_flutter
+description: Local Flutter-compatible icon facade used by Arunika.
+publish_to: none
+version: 2.1.0+arunika.1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+

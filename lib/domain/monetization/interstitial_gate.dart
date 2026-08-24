@@ -17,6 +17,10 @@ class InterstitialGate {
   }
 
   void recordMeasurementSaved() {
+    recordMeaningfulSave();
+  }
+
+  void recordMeaningfulSave() {
     if (_successfulSaves < 3) {
       _successfulSaves++;
     }

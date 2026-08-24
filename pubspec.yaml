@@ -1,5 +1,5 @@
 name: arunika_growth
-description: "Arunika — aplikasi premium pemantau tinggi & berat badan anak dengan standar WHO dan CDC."
+description: "Arunika — ruang privat untuk ritual kecil dan momen keluarga."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.2.0+3
+version: 1.3.0+4
 
 environment:
   sdk: ^3.12.2
@@ -53,6 +53,10 @@ dependencies:
   file_selector: ^1.0.5
   google_mobile_ads: ^9.1.0
   in_app_purchase: ^3.3.0
+  # Shim lokal mempertahankan API Phosphor tanpa mewarisi IconData yang final
+  # pada Flutter 3.44+, sehingga build release tetap kompatibel.
+  phosphor_flutter:
+    path: third_party/phosphor_flutter
 
 dev_dependencies:
   flutter_test:
