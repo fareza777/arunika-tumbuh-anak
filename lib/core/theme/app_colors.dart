@@ -22,6 +22,21 @@ class AppColors {
   // ── Garis halus ────────────────────────────────────────────────────────
   static const Color hairline = Color(0xFFEBE2D1);
 
+  // ── Palet malam Arunika ───────────────────────────────────────────────
+  // Tetap hangat dan bertekstur; bukan hitam murni, agar aksen sunrise
+  // terasa seperti cahaya kecil di atas ruang malam.
+  static const Color nightCanvas = Color(0xFF17130F);
+  static const Color nightSurface = Color(0xFF241E18);
+  static const Color nightSurfaceRaised = Color(0xFF2D251E);
+  static const Color nightText = Color(0xFFFFF2DF);
+  static const Color nightTextSoft = Color(0xFFD2C2AD);
+  static const Color nightTextFaint = Color(0xFFA89882);
+  static const Color nightHairline = Color(0xFF4A3E32);
+  static const Color nightGoldMist = Color(0xFF49391D);
+  static const Color nightSageMist = Color(0xFF26382B);
+  static const Color nightTerracottaMist = Color(0xFF432B24);
+  static const Color nightLavenderMist = Color(0xFF342B3C);
+
   // ── Emas champagne (brand) ─────────────────────────────────────────────
   static const Color gold = Color(0xFFC29A3C);
   // Digelapkan demi kontras WCAG AA untuk teks kecil di atas ivory.

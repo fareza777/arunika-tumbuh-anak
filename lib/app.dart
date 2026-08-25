@@ -13,7 +13,7 @@ class AppIdentity {
   static const String name = 'Arunika';
   static const String tagline = 'Tumbuh Bersama';
   static const String fullName = 'Arunika: Tumbuh Bersama';
-  static const String version = '1.3.1';
+  static const String version = '1.3.2';
 }
 
 class ArunikaApp extends ConsumerWidget {
@@ -30,6 +30,8 @@ class ArunikaApp extends ConsumerWidget {
       title: AppIdentity.fullName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.build(),
+      darkTheme: AppTheme.build(brightness: Brightness.dark),
+      themeMode: settings.darkMode ? ThemeMode.dark : ThemeMode.light,
       locale: const Locale('id', 'ID'),
       supportedLocales: const [Locale('id', 'ID'), Locale('en')],
       localizationsDelegates: const [

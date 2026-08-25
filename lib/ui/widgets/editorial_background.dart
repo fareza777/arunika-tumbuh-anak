@@ -12,8 +12,9 @@ class EditorialBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return DecoratedBox(
-      decoration: const BoxDecoration(color: AppColors.ivory),
+      decoration: BoxDecoration(color: theme.scaffoldBackgroundColor),
       child: Stack(
         children: [
           const Positioned.fill(child: IgnorePointer(child: _PaperTexture())),

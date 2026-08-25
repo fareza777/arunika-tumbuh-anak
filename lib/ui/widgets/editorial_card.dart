@@ -8,10 +8,10 @@ class EditorialCard extends StatelessWidget {
   const EditorialCard({
     super.key,
     required this.child,
-    this.color = AppColors.paper,
+    this.color,
     this.gradient,
     this.padding = const EdgeInsets.all(20),
-    this.borderColor = AppColors.hairline,
+    this.borderColor,
     this.radius = 26,
     this.onTap,
     this.semanticLabel,
@@ -19,10 +19,10 @@ class EditorialCard extends StatelessWidget {
   });
 
   final Widget child;
-  final Color color;
+  final Color? color;
   final Gradient? gradient;
   final EdgeInsetsGeometry padding;
-  final Color borderColor;
+  final Color? borderColor;
   final double radius;
   final VoidCallback? onTap;
   final String? semanticLabel;
@@ -30,14 +30,17 @@ class EditorialCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cardColor = color ?? theme.cardColor;
+    final cardBorder = borderColor ?? theme.colorScheme.outline;
     final card = AnimatedContainer(
       duration: AppMotion.duration(context, const Duration(milliseconds: 240)),
       curve: AppMotion.standard,
       decoration: BoxDecoration(
-        color: gradient == null ? color : null,
+        color: gradient == null ? cardColor : null,
         gradient: gradient,
         borderRadius: BorderRadius.circular(radius),
-        border: Border.all(color: borderColor),
+        border: Border.all(color: cardBorder),
         boxShadow: shadow
             ? AppColors.softShadow(opacity: 0.055, blur: 22, y: 8)
             : null,
@@ -64,23 +67,20 @@ class EditorialCard extends StatelessWidget {
 }
 
 class EditorialEyebrow extends StatelessWidget {
-  const EditorialEyebrow(
-    this.text, {
-    super.key,
-    this.color = AppColors.goldDeep,
-  });
+  const EditorialEyebrow(this.text, {super.key, this.color});
 
   final String text;
-  final Color color;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
+    final resolvedColor = color ?? Theme.of(context).colorScheme.primary;
     return Text(
       text.toUpperCase(),
       style: AppTheme.sans(
         size: 10,
         weight: FontWeight.w800,
-        color: color,
+        color: resolvedColor,
         letterSpacing: 1.6,
       ),
     );

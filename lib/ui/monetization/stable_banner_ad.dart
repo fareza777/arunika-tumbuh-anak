@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme.dart';
 import '../../domain/monetization/ad_retry_policy.dart';
 import '../../domain/monetization/monetization_config.dart';
@@ -36,24 +35,28 @@ class StableBannerSlot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (adsRemoved) return const SizedBox.shrink();
+    final theme = Theme.of(context);
 
     return SizedBox(
       key: ValueKey('banner-slot:${placement.name}'),
       width: double.infinity,
       height: height,
       child: DecoratedBox(
-        decoration: const BoxDecoration(
-          color: AppColors.pearl,
+        decoration: BoxDecoration(
+          color: theme.cardColor,
           border: Border(
-            top: BorderSide(color: AppColors.hairline),
-            bottom: BorderSide(color: AppColors.hairline),
+            top: BorderSide(color: theme.colorScheme.outline),
+            bottom: BorderSide(color: theme.colorScheme.outline),
           ),
         ),
         child: adWidget == null
             ? Center(
                 child: Text(
                   hasError ? 'Iklan akan dimuat kembali' : 'Memuat iklan…',
-                  style: AppTheme.sans(size: 10, color: AppColors.inkFaint),
+                  style: AppTheme.sans(
+                    size: 10,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
               )
             : Center(child: adWidget),

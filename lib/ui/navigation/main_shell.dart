@@ -108,10 +108,11 @@ class _TogetherNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.paper,
-        border: const Border(top: BorderSide(color: AppColors.hairline)),
+        color: theme.scaffoldBackgroundColor,
+        border: Border(top: BorderSide(color: theme.colorScheme.outline)),
         boxShadow: AppColors.softShadow(opacity: 0.08, blur: 22, y: -6),
       ),
       padding: EdgeInsets.only(
@@ -174,7 +175,10 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = active ? AppColors.terracottaDeep : AppColors.inkFaint;
+    final theme = Theme.of(context);
+    final color = active
+        ? theme.colorScheme.primary
+        : theme.colorScheme.onSurfaceVariant;
     return Expanded(
       child: Semantics(
         selected: active,
@@ -199,7 +203,7 @@ class _NavItem extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: active
-                        ? AppColors.terracottaMist
+                        ? theme.colorScheme.primaryContainer
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -329,11 +333,12 @@ class _QuickAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Material(
-      color: AppColors.paper,
+      color: theme.cardColor,
       borderRadius: BorderRadius.circular(18),
       elevation: 3,
-      shadowColor: AppColors.ink.withValues(alpha: 0.12),
+      shadowColor: theme.colorScheme.shadow.withValues(alpha: 0.18),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(18),

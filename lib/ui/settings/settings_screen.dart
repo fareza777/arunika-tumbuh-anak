@@ -167,6 +167,19 @@ class SettingsScreen extends ConsumerWidget {
                       ),
                     ),
                     const Divider(height: 1),
+                    SwitchListTile.adaptive(
+                      value: settings.darkMode,
+                      onChanged: (value) => ref
+                          .read(settingsProvider.notifier)
+                          .update(settings.copyWith(darkMode: value)),
+                      secondary: const Icon(Icons.dark_mode_outlined),
+                      title: const Text('Mode gelap'),
+                      subtitle: const Text(
+                        'Gunakan palet malam Arunika yang lebih nyaman.',
+                        style: TextStyle(height: 1.35),
+                      ),
+                    ),
+                    const Divider(height: 1),
                     ListTile(
                       leading: const PhosphorIcon(
                         PhosphorIconsLight.export,

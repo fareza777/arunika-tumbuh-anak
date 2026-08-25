@@ -11,6 +11,7 @@ class AppSettings {
     this.togetherOnboardingDone = false,
     this.familyName = 'Keluarga',
     this.reducedMotion = false,
+    this.darkMode = false,
     this.adsRemoved = false,
     this.reminderEnabled = false,
     this.reminderIntervalWeeks = 4,
@@ -23,6 +24,7 @@ class AppSettings {
   final bool togetherOnboardingDone;
   final String familyName;
   final bool reducedMotion;
+  final bool darkMode;
   final bool adsRemoved;
 
   /// Pengingat jadwal pengukuran.
@@ -37,6 +39,7 @@ class AppSettings {
     bool? togetherOnboardingDone,
     String? familyName,
     bool? reducedMotion,
+    bool? darkMode,
     bool? adsRemoved,
     bool? reminderEnabled,
     int? reminderIntervalWeeks,
@@ -50,6 +53,7 @@ class AppSettings {
           togetherOnboardingDone ?? this.togetherOnboardingDone,
       familyName: familyName ?? this.familyName,
       reducedMotion: reducedMotion ?? this.reducedMotion,
+      darkMode: darkMode ?? this.darkMode,
       adsRemoved: adsRemoved ?? this.adsRemoved,
       reminderEnabled: reminderEnabled ?? this.reminderEnabled,
       reminderIntervalWeeks:
@@ -71,6 +75,7 @@ class SettingsNotifier extends Notifier<AppSettings> {
   static const _kTogetherOnboarding = 'together_onboarding_done';
   static const _kFamilyName = 'family_name';
   static const _kReducedMotion = 'reduced_motion';
+  static const _kDarkMode = 'dark_mode';
   static const _kAdsRemoved = 'ads_removed_hint';
   static const _kReminderEnabled = 'reminder_enabled';
   static const _kReminderWeeks = 'reminder_weeks';
@@ -87,6 +92,7 @@ class SettingsNotifier extends Notifier<AppSettings> {
       togetherOnboardingDone: _prefs.getBool(_kTogetherOnboarding) ?? false,
       familyName: _prefs.getString(_kFamilyName) ?? 'Keluarga',
       reducedMotion: _prefs.getBool(_kReducedMotion) ?? false,
+      darkMode: _prefs.getBool(_kDarkMode) ?? false,
       adsRemoved: _prefs.getBool(_kAdsRemoved) ?? false,
       reminderEnabled: _prefs.getBool(_kReminderEnabled) ?? false,
       reminderIntervalWeeks: _prefs.getInt(_kReminderWeeks) ?? 4,
@@ -102,6 +108,7 @@ class SettingsNotifier extends Notifier<AppSettings> {
     await _prefs.setBool(_kTogetherOnboarding, next.togetherOnboardingDone);
     await _prefs.setString(_kFamilyName, next.familyName);
     await _prefs.setBool(_kReducedMotion, next.reducedMotion);
+    await _prefs.setBool(_kDarkMode, next.darkMode);
     await _prefs.setBool(_kAdsRemoved, next.adsRemoved);
     await _prefs.setBool(_kReminderEnabled, next.reminderEnabled);
     await _prefs.setInt(_kReminderWeeks, next.reminderIntervalWeeks);
