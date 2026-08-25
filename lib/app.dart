@@ -13,7 +13,7 @@ class AppIdentity {
   static const String name = 'Arunika';
   static const String tagline = 'Tumbuh Bersama';
   static const String fullName = 'Arunika: Tumbuh Bersama';
-  static const String version = '1.3.2';
+  static const String version = '1.3.3';
 }
 
 class ArunikaApp extends ConsumerWidget {
