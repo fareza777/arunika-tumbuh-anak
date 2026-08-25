@@ -45,7 +45,16 @@ class RemoveAdsCard extends ConsumerWidget {
     }
 
     final isBusy = state.isVerifying;
+    final price = state.productPrice ?? 'US\$4.99';
+    final statusMessage =
+        state.message ??
+        (state.isVerifying
+            ? 'Menghubungkan ke Google Play…'
+            : state.storeAvailable
+            ? 'Pembayaran sekali · tanpa langganan'
+            : 'Buka dari Google Play untuk melanjutkan.');
     return LuxeCard(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 13),
       gradient: const LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
@@ -56,12 +65,16 @@ class RemoveAdsCard extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const IconTile(
                 icon: Icons.auto_awesome_rounded,
                 color: AppColors.gold,
+                size: 44,
+                iconSize: 21,
+                radius: 14,
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,7 +85,7 @@ class RemoveAdsCard extends ConsumerWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      'Nikmati Arunika tanpa iklan dengan satu pembelian.',
+                      'Satu kali bayar untuk ruang keluarga yang lebih tenang.',
                       style: AppTheme.sans(
                         size: 11.5,
                         color: AppColors.inkSoft,
@@ -82,34 +95,144 @@ class RemoveAdsCard extends ConsumerWidget {
                   ],
                 ),
               ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.goldMist,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.goldSoft),
+                ),
+                child: Text(
+                  price,
+                  style: AppTheme.sans(
+                    size: 11,
+                    weight: FontWeight.w800,
+                    color: AppColors.goldDeep,
+                  ),
+                ),
+              ),
             ],
           ),
-          if (state.message != null) ...[
-            const SizedBox(height: 12),
-            Text(
-              state.message!,
-              style: AppTheme.sans(
-                size: 11.5,
-                color: AppColors.danger,
-                height: 1.35,
+          const SizedBox(height: 14),
+          Row(
+            children: const [
+              Expanded(
+                child: _Benefit(
+                  icon: Icons.hide_source_rounded,
+                  label: 'Tanpa banner',
+                ),
               ),
-            ),
-          ],
-          const SizedBox(height: 16),
+              SizedBox(width: 8),
+              Expanded(
+                child: _Benefit(
+                  icon: Icons.payments_outlined,
+                  label: 'Sekali bayar',
+                ),
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: _Benefit(
+                  icon: Icons.restore_rounded,
+                  label: 'Pulihkan kapan saja',
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 13),
+          _PurchaseStatus(
+            message: statusMessage,
+            isError: state.message != null,
+          ),
+          const SizedBox(height: 13),
           GoldButton(
             label: isBusy
-                ? 'Memeriksa Play Store'
-                : 'Hapus Iklan • ${state.productPrice ?? 'US\$4.99'}',
+                ? 'Menghubungkan ke Play Store'
+                : state.storeAvailable
+                ? 'Beli sekali • $price'
+                : 'Coba lagi di Play Store',
             icon: Icons.shield_moon_rounded,
             isLoading: isBusy,
             onPressed: isBusy ? null : controller.buyRemoveAds,
             dense: true,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 3),
           Center(
             child: TextButton(
               onPressed: isBusy ? null : controller.restorePurchases,
-              child: const Text('Pulihkan pembelian'),
+              child: const Text('Sudah pernah membeli? Pulihkan'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Benefit extends StatelessWidget {
+  const _Benefit({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(icon, size: 17, color: AppColors.goldDeep),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: AppTheme.sans(
+            size: 9.5,
+            weight: FontWeight.w700,
+            color: AppColors.inkSoft,
+            height: 1.2,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PurchaseStatus extends StatelessWidget {
+  const _PurchaseStatus({required this.message, required this.isError});
+
+  final String message;
+  final bool isError;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isError ? AppColors.danger : AppColors.sageDeep;
+    final background = isError ? AppColors.dangerSoft : AppColors.sageMist;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            isError ? Icons.info_outline_rounded : Icons.lock_outline_rounded,
+            size: 16,
+            color: color,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: AppTheme.sans(
+                size: 10.5,
+                weight: FontWeight.w600,
+                color: color,
+                height: 1.3,
+              ),
             ),
           ),
         ],

@@ -12,6 +12,8 @@ class _FakeGateway implements MonetizationGateway {
   var initialized = false;
   var buyCalls = 0;
   var restoreCalls = 0;
+  var available = true;
+  Object? buyError;
 
   @override
   Stream<PurchaseUpdate> get purchaseUpdates => updates.stream;
@@ -20,7 +22,7 @@ class _FakeGateway implements MonetizationGateway {
   Future<void> initialize() async => initialized = true;
 
   @override
-  Future<bool> isAvailable() async => true;
+  Future<bool> isAvailable() async => available;
 
   @override
   Future<MonetizationProduct?> queryRemoveAds() async =>
@@ -32,6 +34,7 @@ class _FakeGateway implements MonetizationGateway {
   @override
   Future<void> buyRemoveAds() async {
     buyCalls++;
+    if (buyError != null) throw buyError!;
     updates.add(
       const PurchaseUpdate(
         productId: 'arunika_remove_ads',
@@ -144,5 +147,18 @@ void main() {
 
     expect(gateway.buyCalls, 1);
     expect(gateway.restoreCalls, 1);
+  });
+
+  test('buy failure exits checking state with a message', () async {
+    gateway.available = false;
+    gateway.buyError = StateError('Pembelian belum tersedia');
+    final container = createContainer();
+    addTearDown(container.dispose);
+
+    await container.read(monetizationProvider.notifier).buyRemoveAds();
+
+    final state = container.read(monetizationProvider);
+    expect(state.isVerifying, isFalse);
+    expect(state.message, 'Pembelian belum tersedia');
   });
 }

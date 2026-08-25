@@ -6,6 +6,7 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 
 import 'monetization_config.dart';
 import 'monetization_gateway.dart';
+import 'product_selector.dart';
 
 /// The concrete bridge to Google Mobile Ads and Google Play Billing.
 class MonetizationService implements MonetizationGateway {
@@ -58,12 +59,18 @@ class MonetizationService implements MonetizationGateway {
   @override
   Future<MonetizationProduct?> queryRemoveAds() async {
     final response = await _store.queryProductDetails({_config.productId});
+    final queryFailure = productQueryFailureMessage(
+      response,
+      _config.productId,
+    );
+    if (queryFailure != null) throw StateError(queryFailure);
     if (response.productDetails.isEmpty) return null;
 
-    final product = response.productDetails.firstWhere(
-      (item) => item.id == _config.productId,
-      orElse: () => response.productDetails.first,
+    final product = selectProductDetails(
+      response.productDetails,
+      _config.productId,
     );
+    if (product == null) return null;
     _products[product.id] = product;
     return MonetizationProduct(id: product.id, price: product.price);
   }

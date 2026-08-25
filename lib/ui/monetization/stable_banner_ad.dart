@@ -16,11 +16,13 @@ enum BannerPlacement { mainShell }
 /// The layout shell is intentionally independent from the ad plugin so its
 /// height can be tested and kept stable while an ad is loading or retrying.
 class StableBannerSlot extends StatelessWidget {
+  static const defaultHeight = 54.0;
+
   const StableBannerSlot({
     super.key,
     required this.placement,
     required this.adsRemoved,
-    this.height = 60,
+    this.height = defaultHeight,
     this.adWidget,
     this.hasError = false,
   });
@@ -47,14 +49,14 @@ class StableBannerSlot extends StatelessWidget {
             bottom: BorderSide(color: AppColors.hairline),
           ),
         ),
-        child:
-            adWidget ??
-            Center(
-              child: Text(
-                hasError ? 'Iklan akan dimuat kembali' : 'Memuat iklan…',
-                style: AppTheme.sans(size: 10, color: AppColors.inkFaint),
-              ),
-            ),
+        child: adWidget == null
+            ? Center(
+                child: Text(
+                  hasError ? 'Iklan akan dimuat kembali' : 'Memuat iklan…',
+                  style: AppTheme.sans(size: 10, color: AppColors.inkFaint),
+                ),
+              )
+            : Center(child: adWidget),
       ),
     );
   }
@@ -95,10 +97,14 @@ class _StableBannerAdState extends ConsumerState<StableBannerAd> {
     }
 
     final ad = _ad;
+    final adHeight = (_adSize?.height ?? StableBannerSlot.defaultHeight)
+        .toDouble();
     return StableBannerSlot(
       placement: widget.placement,
       adsRemoved: false,
-      height: (_adSize?.height ?? 60).toDouble(),
+      height: adHeight < StableBannerSlot.defaultHeight
+          ? StableBannerSlot.defaultHeight
+          : adHeight,
       hasError: _hasError,
       adWidget: ad == null || !_adLoaded ? null : AdWidget(ad: ad),
     );
@@ -120,12 +126,14 @@ class _StableBannerAdState extends ConsumerState<StableBannerAd> {
     if (mounted) setState(() => _hasError = false);
 
     try {
-      final width = MediaQuery.sizeOf(context).width.truncate();
-      final size = await AdSize.getLargeAnchoredAdaptiveBannerAdSize(width);
+      // A standard 320x50 banner keeps the anchored slot compact and stable
+      // across devices. The previous large adaptive format left a visibly
+      // tall strip at the bottom of the family journal.
+      const size = AdSize.banner;
       if (!mounted) return;
 
       final ad = BannerAd(
-        size: size ?? AdSize.banner,
+        size: size,
         adUnitId: _config.bannerAdUnitId,
         request: const AdRequest(),
         listener: BannerAdListener(
@@ -136,7 +144,7 @@ class _StableBannerAdState extends ConsumerState<StableBannerAd> {
             }
             setState(() {
               _ad = loaded as BannerAd;
-              _adSize = size ?? AdSize.banner;
+              _adSize = size;
               _adLoaded = true;
               _loading = false;
               _hasError = false;

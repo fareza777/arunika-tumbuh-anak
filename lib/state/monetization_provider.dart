@@ -76,7 +76,10 @@ class MonetizationController extends Notifier<MonetizationState> {
       state = state.copyWith(isVerifying: false);
     } catch (error) {
       if (_disposed) return;
-      state = state.withMessage(_friendlyError(error));
+      state = state.copyWith(
+        isVerifying: false,
+        message: _friendlyError(error),
+      );
     }
   }
 
@@ -85,7 +88,12 @@ class MonetizationController extends Notifier<MonetizationState> {
     try {
       await _gateway.buyRemoveAds();
     } catch (error) {
-      if (!_disposed) state = state.withMessage(_friendlyError(error));
+      if (!_disposed) {
+        state = state.copyWith(
+          isVerifying: false,
+          message: _friendlyError(error),
+        );
+      }
     }
   }
 
@@ -97,7 +105,12 @@ class MonetizationController extends Notifier<MonetizationState> {
         state = state.copyWith(isVerifying: false);
       }
     } catch (error) {
-      if (!_disposed) state = state.withMessage(_friendlyError(error));
+      if (!_disposed) {
+        state = state.copyWith(
+          isVerifying: false,
+          message: _friendlyError(error),
+        );
+      }
     }
   }
 
@@ -148,7 +161,9 @@ class MonetizationController extends Notifier<MonetizationState> {
   }
 
   String _friendlyError(Object error) {
-    final text = error.toString().replaceFirst('Exception: ', '');
+    final text = error
+        .toString()
+        .replaceFirst(RegExp(r'^(Exception|Bad state):\s*'), '');
     return text.isEmpty ? 'Play Store sementara tidak tersedia.' : text;
   }
 }

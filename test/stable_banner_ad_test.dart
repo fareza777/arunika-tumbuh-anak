@@ -35,7 +35,7 @@ void main() {
     );
 
     final slot = find.byKey(const ValueKey('banner-slot:mainShell'));
-    expect(tester.getSize(slot).height, 60);
+    expect(tester.getSize(slot).height, 54);
     expect(find.text('Iklan akan dimuat kembali'), findsOneWidget);
   });
 
