@@ -50,28 +50,21 @@ class _MainShellState extends ConsumerState<MainShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: IndexedStack(
-              index: _index,
-              children: [
-                TodayScreen(
-                  onOpenMoment: _openMoment,
-                  onOpenRitual: _openRitual,
-                  onOpenGarden: () => _select(3),
-                ),
-                RitualsScreen(onOpenRitual: _openRitual),
-                MomentsScreen(onOpenMoment: _openMoment),
-                const GardenScreen(),
-              ],
+      body: MainShellLayout(
+        banner: const StableBannerAd(placement: BannerPlacement.mainShell),
+        content: IndexedStack(
+          index: _index,
+          children: [
+            TodayScreen(
+              onOpenMoment: _openMoment,
+              onOpenRitual: _openRitual,
+              onOpenGarden: () => _select(3),
             ),
-          ),
-          const SafeArea(
-            top: false,
-            child: StableBannerAd(placement: BannerPlacement.mainShell),
-          ),
-        ],
+            RitualsScreen(onOpenRitual: _openRitual),
+            MomentsScreen(onOpenMoment: _openMoment),
+            const GardenScreen(),
+          ],
+        ),
       ),
       floatingActionButton: _ActionRail(
         expanded: _showActions,
@@ -81,6 +74,28 @@ class _MainShellState extends ConsumerState<MainShell> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: _TogetherNavBar(index: _index, onTap: _select),
+    );
+  }
+}
+
+/// Keeps shell-wide chrome in a predictable order around the active surface.
+class MainShellLayout extends StatelessWidget {
+  const MainShellLayout({
+    super.key,
+    required this.banner,
+    required this.content,
+  });
+
+  final Widget banner;
+  final Widget content;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        banner,
+        Expanded(child: content),
+      ],
     );
   }
 }

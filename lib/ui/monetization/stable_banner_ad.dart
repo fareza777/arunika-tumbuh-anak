@@ -99,14 +99,18 @@ class _StableBannerAdState extends ConsumerState<StableBannerAd> {
     final ad = _ad;
     final adHeight = (_adSize?.height ?? StableBannerSlot.defaultHeight)
         .toDouble();
-    return StableBannerSlot(
-      placement: widget.placement,
-      adsRemoved: false,
-      height: adHeight < StableBannerSlot.defaultHeight
-          ? StableBannerSlot.defaultHeight
-          : adHeight,
-      hasError: _hasError,
-      adWidget: ad == null || !_adLoaded ? null : AdWidget(ad: ad),
+    return SafeArea(
+      top: true,
+      bottom: false,
+      child: StableBannerSlot(
+        placement: widget.placement,
+        adsRemoved: false,
+        height: adHeight < StableBannerSlot.defaultHeight
+            ? StableBannerSlot.defaultHeight
+            : adHeight,
+        hasError: _hasError,
+        adWidget: ad == null || !_adLoaded ? null : AdWidget(ad: ad),
+      ),
     );
   }
 
