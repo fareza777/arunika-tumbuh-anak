@@ -1,98 +1,115 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
-
+import 'ad_presentations.dart';
 import 'interstitial_gate.dart';
 import 'monetization_config.dart';
 
-/// Loads one interstitial in advance and shows it only after a natural,
-/// rate-limited completion point. The banner remains the primary ad surface.
+/// Keeps one ad for a completed-save transition. A late load is cached only:
+/// it can never appear after the user has already resumed browsing or editing.
 class InterstitialAdManager {
-  InterstitialAdManager({MonetizationConfig? config})
-    : _config = config ?? MonetizationConfig.fromEnvironment();
+  InterstitialAdManager({
+    MonetizationConfig? config,
+    bool? isSupported,
+    Future<bool> Function()? canRequestAds,
+    Future<InterstitialAdPresentation> Function(String)? loadAd,
+    DateTime Function()? now,
+  }) : _config = config ?? MonetizationConfig.fromEnvironment(),
+       _isSupported = isSupported ?? supportsMobileAds,
+       _canRequestAds = canRequestAds ?? canRequestMobileAds,
+       _loadAd = loadAd ?? loadInterstitialAd,
+       _now = now ?? DateTime.now;
 
   final MonetizationConfig _config;
-  InterstitialAd? _ad;
+  final bool _isSupported;
+  final Future<bool> Function() _canRequestAds;
+  final Future<InterstitialAdPresentation> Function(String) _loadAd;
+  final DateTime Function() _now;
+  InterstitialAdPresentation? _ad;
   var _loading = false;
+  var _showing = false;
   var _disposed = false;
 
-  Future<void> initialize() async {
-    if (_disposed || !_supportsAds) return;
-    try {
-      if (!await ConsentInformation.instance.canRequestAds()) return;
-    } catch (_) {
-      return;
-    }
-    await preload();
-  }
+  bool get hasCachedAd => _ad != null;
+
+  Future<void> initialize() => preload();
 
   Future<void> preload() async {
-    if (_disposed || !_supportsAds || _loading || _ad != null) return;
+    if (_disposed ||
+        !_isSupported ||
+        !_config.canUseInterstitial ||
+        _loading ||
+        _showing ||
+        _ad != null) {
+      return;
+    }
     _loading = true;
     try {
-      await InterstitialAd.load(
-        adUnitId: _config.interstitialAdUnitId,
-        request: const AdRequest(),
-        adLoadCallback: InterstitialAdLoadCallback(
-          onAdLoaded: (ad) {
-            _loading = false;
-            if (_disposed) {
-              ad.dispose();
-              return;
-            }
-            _ad = ad;
-          },
-          onAdFailedToLoad: (_) => _loading = false,
-        ),
-      );
+      if (!await _canRequestAds() || _disposed) return;
+      final ad = await _loadAd(_config.interstitialAdUnitId);
+      if (_disposed) {
+        await ad.dispose();
+        return;
+      }
+      _ad = ad;
     } catch (_) {
+      // An unavailable ad never blocks a save or navigation.
+    } finally {
       _loading = false;
     }
   }
 
-  Future<void> showIfEligible({
+  Future<bool> showIfEligible({
     required InterstitialGate gate,
     required bool adsRemoved,
+    required bool Function() canPresent,
+    required bool Function() adsSuppressed,
   }) async {
-    if (_disposed || adsRemoved || !gate.canShow(DateTime.now())) return;
-    final ad = _ad;
-    if (ad == null) {
+    bool eligibleRoute() =>
+        !_disposed && !adsRemoved && !adsSuppressed() && canPresent();
+    if (_showing || !eligibleRoute()) return false;
+    if (_ad == null) {
       unawaited(preload());
-      return;
+      return false;
+    }
+    if (!gate.canShow(_now())) return false;
+    if (!await _canRequestAds() || !eligibleRoute()) return false;
+
+    final ad = _ad;
+    if (ad == null || _showing) return false;
+    _ad = null;
+    _showing = true;
+    var finished = false;
+    var shown = false;
+    void finish() {
+      if (finished) return;
+      finished = true;
+      _showing = false;
+      unawaited(ad.dispose());
     }
 
-    _ad = null;
-    gate.recordShown(DateTime.now());
-    ad.fullScreenContentCallback = FullScreenContentCallback<InterstitialAd>(
-      onAdDismissedFullScreenContent: (dismissed) {
-        dismissed.dispose();
-        unawaited(preload());
-      },
-      onAdFailedToShowFullScreenContent: (failed, _) {
-        failed.dispose();
-        unawaited(preload());
-      },
-    );
     try {
-      await ad.show();
-    } catch (error) {
-      debugPrint('Arunika interstitial unavailable: $error');
-      ad.dispose();
-      unawaited(preload());
+      await ad.show(
+        onShown: () {
+          if (shown || finished) return;
+          shown = true;
+          gate.recordShown(_now());
+        },
+        onDismissed: finish,
+        onFailed: finish,
+      );
+      return !finished || shown;
+    } catch (_) {
+      finish();
+      return false;
     }
   }
 
   Future<void> dispose() async {
+    if (_disposed) return;
     _disposed = true;
-    _ad?.dispose();
+    final ad = _ad;
     _ad = null;
-  }
-
-  bool get _supportsAds {
-    final mobile =
-        defaultTargetPlatform == TargetPlatform.android ||
-        defaultTargetPlatform == TargetPlatform.iOS;
-    return mobile && (!_config.isRelease || _config.isValidForRelease);
+    await ad?.dispose();
+    // A presented native overlay disposes itself from its completion callback.
   }
 }

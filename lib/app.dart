@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,7 +14,7 @@ class AppIdentity {
   static const String name = 'Arunika';
   static const String tagline = 'Tumbuh Bersama';
   static const String fullName = 'Arunika: Tumbuh Bersama';
-  static const String version = '1.3.3';
+  static const String version = '1.4.0';
 }
 
 class ArunikaApp extends ConsumerWidget {
@@ -39,18 +40,27 @@ class ArunikaApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      // Hormati pembesaran font sistem, tapi batasi agar tata letak tidak rusak.
       builder: (context, child) {
-        final scaler = MediaQuery.textScalerOf(context);
-        final clamped = scaler.scale(1.0).clamp(1.0, 1.3).toDouble();
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
-            textScaler: TextScaler.linear(clamped),
             disableAnimations:
                 MediaQuery.of(context).disableAnimations ||
                 settings.reducedMotion,
           ),
-          child: child ?? const SizedBox.shrink(),
+          child: AnnotatedRegion<SystemUiOverlayStyle>(
+            value: Theme.of(context).brightness == Brightness.dark
+                ? SystemUiOverlayStyle.light.copyWith(
+                    systemNavigationBarColor: Theme.of(
+                      context,
+                    ).scaffoldBackgroundColor,
+                  )
+                : SystemUiOverlayStyle.dark.copyWith(
+                    systemNavigationBarColor: Theme.of(
+                      context,
+                    ).scaffoldBackgroundColor,
+                  ),
+            child: child ?? const SizedBox.shrink(),
+          ),
         );
       },
       home: const SplashScreen(),

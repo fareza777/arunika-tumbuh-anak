@@ -4,7 +4,11 @@ import '../db/app_database.dart';
 import '../models/family_member.dart';
 
 class FamilyMemberRepository {
-  Future<Database> get _db async => AppDatabase.instance.database;
+  FamilyMemberRepository({AppDatabase? database})
+    : _database = database ?? AppDatabase.instance;
+
+  final AppDatabase _database;
+  Future<Database> get _db => _database.database;
 
   Future<List<FamilyMember>> getAll() async {
     final db = await _db;
@@ -25,11 +29,15 @@ class FamilyMemberRepository {
 
   Future<void> insert(FamilyMember member) async {
     final db = await _db;
-    await db.insert(
-      'family_members',
-      member.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.transaction((txn) async {
+      final updated = await txn.update(
+        'family_members',
+        member.toMap(),
+        where: 'id = ?',
+        whereArgs: [member.id],
+      );
+      if (updated == 0) await txn.insert('family_members', member.toMap());
+    });
   }
 
   Future<void> update(FamilyMember member) async {

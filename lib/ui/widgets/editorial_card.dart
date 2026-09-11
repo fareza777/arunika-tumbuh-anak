@@ -45,24 +45,19 @@ class EditorialCard extends StatelessWidget {
             ? AppColors.softShadow(opacity: 0.055, blur: 22, y: 8)
             : null,
       ),
-      child: Padding(padding: padding, child: child),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(radius),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(radius),
+          child: Padding(padding: padding, child: child),
+        ),
+      ),
     );
 
-    final tappable = onTap == null
-        ? card
-        : Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: onTap,
-              borderRadius: BorderRadius.circular(radius),
-              child: card,
-            ),
-          );
-    return Semantics(
-      button: onTap != null,
-      label: semanticLabel,
-      child: tappable,
-    );
+    return Semantics(button: onTap != null, label: semanticLabel, child: card);
   }
 }
 

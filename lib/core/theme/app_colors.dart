@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Palet warna "Arunika Light Luxury".
-/// Hangat, cerah, dan elegan — dirancang untuk para ibu:
-/// ivory lembut, aksen champagne-gold, dan status gizi yang mudah dibaca.
+/// Warm paper, terracotta, and sage for the family journal.
+/// Legacy measurement accents remain for retained migration screens.
 class AppColors {
   AppColors._();
 
@@ -16,8 +15,8 @@ class AppColors {
 
   // ── Tinta (teks) ───────────────────────────────────────────────────────
   static const Color ink = Color(0xFF2D2820);
-  static const Color inkSoft = Color(0xFF7C7162);
-  static const Color inkFaint = Color(0xFFB0A591);
+  static const Color inkSoft = Color(0xFF706455);
+  static const Color inkFaint = Color(0xFF75685C);
 
   // ── Garis halus ────────────────────────────────────────────────────────
   static const Color hairline = Color(0xFFEBE2D1);

@@ -1,0 +1,12 @@
+Native Android smoke test, 5 September 2026
+Device: isolated read-only Android 14/API 34 emulator, 390x844 logical display.
+Network disabled; no production ad was loaded or clicked.
+PASS: signed release APK install and launch.
+PASS: onboarding family name and member, three starter habits.
+PASS: create a titled moment with a full note while offline.
+PASS: update-install final signed APK, retaining local family and moment data.
+PASS: navigate to Moments and open saved story detail after update.
+PASS: four core tabs remain visible without a Remove Ads purchase.
+Additional source/widget checks: 288 tests pass; analyzer has no issues.
+Not exercised here: Play Billing transactions, production ad fill/consent, physical device alarms/reboot, and Play Console prelaunch checks.
+PASS: final AppBar status icons are dark and readable on the light background; verified in the final APK capture.

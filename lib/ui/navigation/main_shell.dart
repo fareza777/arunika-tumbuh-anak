@@ -1,10 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_motion.dart';
-import '../../core/theme/app_theme.dart';
+import '../../state/together_providers.dart';
+import '../../state/journal_reminder_provider.dart';
+import '../../state/monetization_provider.dart';
 import '../monetization/stable_banner_ad.dart';
 import '../together/garden_screen.dart';
 import '../together/moment_editor_screen.dart';
@@ -12,355 +11,177 @@ import '../together/moments_screen.dart';
 import '../together/ritual_editor_sheet.dart';
 import '../together/rituals_screen.dart';
 import '../together/today_screen.dart';
+import '../widgets/journal_components.dart';
 
 class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key});
-
   @override
   ConsumerState<MainShell> createState() => _MainShellState();
 }
 
-class _MainShellState extends ConsumerState<MainShell> {
+class _MainShellState extends ConsumerState<MainShell>
+    with WidgetsBindingObserver {
   var _index = 0;
-  var _showActions = false;
-
-  Future<void> _openMoment() async {
-    setState(() => _showActions = false);
-    await Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (_) => const MomentEditorScreen()));
+  Timer? _dayTimer;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _scheduleDayRefresh();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _syncReminder());
   }
 
-  Future<void> _openRitual() async {
-    setState(() => _showActions = false);
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => const RitualEditorSheet(),
+  Future<void> _syncReminder() async {
+    try {
+      await ref.read(journalReminderProvider).sync();
+    } catch (_) {
+      /* Settings exposes a retry and keeps the user's preference. */
+    }
+  }
+
+  void _scheduleDayRefresh() {
+    _dayTimer?.cancel();
+    final now = DateTime.now();
+    _dayTimer = Timer(
+      DateTime(now.year, now.month, now.day + 1).difference(now),
+      () {
+        _refreshDate();
+        _scheduleDayRefresh();
+      },
     );
   }
 
-  void _select(int index) {
-    setState(() {
-      _index = index;
-      _showActions = false;
-    });
+  void _refreshDate() {
+    ref.invalidate(journalTodayProvider);
+    ref.invalidate(todayRitualsProvider);
+    ref.invalidate(todayCompletedRitualIdsProvider);
+    ref.invalidate(recapProvider);
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshDate();
+      _scheduleDayRefresh();
+      _syncReminder();
+      ref.read(monetizationProvider.notifier).refreshAdPause();
+    }
+  }
+
+  @override
+  void dispose() {
+    _dayTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  void _select(int index) => setState(() => _index = index);
+  Future<void> _openMoment() async {
+    final selectedTab = _index;
+    final saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(builder: (_) => const MomentEditorScreen()),
+    );
+    if (!mounted || saved != true) return;
+    await ref
+        .read(monetizationProvider.notifier)
+        .onMomentSavedAndReturned(
+          canPresent: () =>
+              mounted &&
+              _index == selectedTab &&
+              (ModalRoute.of(context)?.isCurrent ?? false) &&
+              WidgetsBinding.instance.lifecycleState ==
+                  AppLifecycleState.resumed,
+        );
+  }
+
+  void _openRitual() => showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    enableDrag: false,
+    isDismissible: false,
+    builder: (_) => const RitualEditorSheet(),
+  );
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: MainShellLayout(
-        banner: const StableBannerAd(placement: BannerPlacement.mainShell),
-        content: IndexedStack(
-          index: _index,
-          children: [
-            TodayScreen(
-              onOpenMoment: _openMoment,
-              onOpenRitual: _openRitual,
-              onOpenGarden: () => _select(3),
+    ref.listen<String?>(journalStorageWarningProvider, (_, warning) {
+      if (warning == null) return;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        journalMessage(context, warning);
+        ref.read(journalStorageWarningProvider.notifier).state = null;
+      });
+    });
+    return PopScope(
+      canPop: _index == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _select(0);
+      },
+      child: Scaffold(
+        body: SafeArea(
+          bottom: false,
+          child: MainShellLayout(
+            banner: const StableBannerAd(placement: BannerPlacement.mainShell),
+            content: IndexedStack(
+              index: _index,
+              children: [
+                TodayScreen(
+                  onOpenMoment: _openMoment,
+                  onOpenRitual: _openRitual,
+                  onOpenRituals: () => _select(1),
+                  onOpenMoments: () => _select(2),
+                  onOpenGarden: () => _select(3),
+                ),
+                RitualsScreen(onOpenRitual: _openRitual),
+                MomentsScreen(onOpenMoment: _openMoment),
+                const GardenScreen(),
+              ],
             ),
-            RitualsScreen(onOpenRitual: _openRitual),
-            MomentsScreen(onOpenMoment: _openMoment),
-            const GardenScreen(),
+          ),
+        ),
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: _index,
+          onDestinationSelected: _select,
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.wb_sunny_outlined),
+              selectedIcon: Icon(Icons.wb_sunny_rounded),
+              label: 'Hari ini',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.checklist_rounded),
+              label: 'Kebiasaan',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.auto_stories_outlined),
+              selectedIcon: Icon(Icons.auto_stories),
+              label: 'Momen',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.people_outline),
+              selectedIcon: Icon(Icons.people),
+              label: 'Keluarga',
+            ),
           ],
         ),
       ),
-      floatingActionButton: _ActionRail(
-        expanded: _showActions,
-        onToggle: () => setState(() => _showActions = !_showActions),
-        onMoment: _openMoment,
-        onRitual: _openRitual,
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: _TogetherNavBar(index: _index, onTap: _select),
     );
   }
 }
 
-/// Keeps shell-wide chrome in a predictable order around the active surface.
 class MainShellLayout extends StatelessWidget {
   const MainShellLayout({
     super.key,
     required this.banner,
     required this.content,
   });
-
   final Widget banner;
   final Widget content;
-
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        banner,
-        Expanded(child: content),
-      ],
-    );
-  }
-}
-
-class _TogetherNavBar extends StatelessWidget {
-  const _TogetherNavBar({required this.index, required this.onTap});
-
-  final int index;
-  final ValueChanged<int> onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
-        border: Border(top: BorderSide(color: theme.colorScheme.outline)),
-        boxShadow: AppColors.softShadow(opacity: 0.08, blur: 22, y: -6),
-      ),
-      padding: EdgeInsets.only(
-        left: 10,
-        right: 10,
-        top: 8,
-        bottom: MediaQuery.paddingOf(context).bottom + 8,
-      ),
-      child: Row(
-        children: [
-          _NavItem(
-            icon: PhosphorIconsLight.sun,
-            activeIcon: PhosphorIconsFill.sun,
-            label: 'Hari Ini',
-            active: index == 0,
-            onTap: () => onTap(0),
-          ),
-          _NavItem(
-            icon: PhosphorIconsLight.listChecks,
-            activeIcon: PhosphorIconsFill.listChecks,
-            label: 'Ritual',
-            active: index == 1,
-            onTap: () => onTap(1),
-          ),
-          const SizedBox(width: 78),
-          _NavItem(
-            icon: PhosphorIconsLight.images,
-            activeIcon: PhosphorIconsFill.images,
-            label: 'Momen',
-            active: index == 2,
-            onTap: () => onTap(2),
-          ),
-          _NavItem(
-            icon: PhosphorIconsLight.treeStructure,
-            activeIcon: PhosphorIconsFill.treeStructure,
-            label: 'Taman',
-            active: index == 3,
-            onTap: () => onTap(3),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  const _NavItem({
-    required this.icon,
-    required this.activeIcon,
-    required this.label,
-    required this.active,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final IconData activeIcon;
-  final String label;
-  final bool active;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final color = active
-        ? theme.colorScheme.primary
-        : theme.colorScheme.onSurfaceVariant;
-    return Expanded(
-      child: Semantics(
-        selected: active,
-        button: true,
-        label: label,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 3),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                AnimatedContainer(
-                  duration: AppMotion.duration(
-                    context,
-                    const Duration(milliseconds: 220),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: active
-                        ? theme.colorScheme.primaryContainer
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: PhosphorIcon(
-                    active ? activeIcon : icon,
-                    size: 21,
-                    color: color,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  label,
-                  style: AppTheme.sans(
-                    size: 10,
-                    weight: active ? FontWeight.w800 : FontWeight.w600,
-                    color: color,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ActionRail extends StatelessWidget {
-  const _ActionRail({
-    required this.expanded,
-    required this.onToggle,
-    required this.onMoment,
-    required this.onRitual,
-  });
-
-  final bool expanded;
-  final VoidCallback onToggle;
-  final VoidCallback onMoment;
-  final VoidCallback onRitual;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        AnimatedSwitcher(
-          duration: AppMotion.duration(
-            context,
-            const Duration(milliseconds: 220),
-          ),
-          transitionBuilder: (child, animation) =>
-              ScaleTransition(scale: animation, child: child),
-          child: expanded
-              ? Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _QuickAction(
-                        icon: PhosphorIconsLight.images,
-                        label: 'Catat momen',
-                        color: AppColors.terracotta,
-                        onTap: onMoment,
-                      ),
-                      const SizedBox(width: 10),
-                      _QuickAction(
-                        icon: PhosphorIconsLight.listChecks,
-                        label: 'Buat ritual',
-                        color: AppColors.sageDeep,
-                        onTap: onRitual,
-                      ),
-                    ],
-                  ),
-                )
-              : const SizedBox.shrink(),
-        ),
-        Semantics(
-          button: true,
-          label: expanded ? 'Tutup aksi cepat' : 'Buka aksi cepat',
-          child: GestureDetector(
-            onTap: onToggle,
-            child: AnimatedContainer(
-              duration: AppMotion.duration(
-                context,
-                const Duration(milliseconds: 280),
-              ),
-              curve: AppMotion.spring,
-              width: 62,
-              height: 62,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: expanded
-                    ? AppColors.terracottaMistGradient
-                    : AppColors.sunrise,
-                border: Border.all(color: AppColors.paper, width: 5),
-                boxShadow: AppColors.softShadow(opacity: 0.18, blur: 24, y: 10),
-              ),
-              child: Center(
-                child: PhosphorIcon(
-                  expanded ? PhosphorIconsLight.x : PhosphorIconsLight.plus,
-                  size: 27,
-                  color: expanded
-                      ? AppColors.terracottaDeep
-                      : AppColors.espresso,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _QuickAction extends StatelessWidget {
-  const _QuickAction({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Material(
-      color: theme.cardColor,
-      borderRadius: BorderRadius.circular(18),
-      elevation: 3,
-      shadowColor: theme.colorScheme.shadow.withValues(alpha: 0.18),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(18),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 10, 12, 9),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              PhosphorIcon(icon, size: 23, color: color),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: AppTheme.sans(
-                  size: 9.5,
-                  weight: FontWeight.w800,
-                  color: color,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Column(
+    children: [
+      banner,
+      Expanded(child: content),
+    ],
+  );
 }

@@ -13,6 +13,11 @@ class _FakeGateway implements MonetizationGateway {
   var buyCalls = 0;
   var restoreCalls = 0;
   var available = true;
+  Completer<bool>? availability;
+  MonetizationProduct? product = const MonetizationProduct(
+    id: 'arunika_remove_ads',
+    price: 'Rp79.000',
+  );
   Object? buyError;
 
   @override
@@ -22,11 +27,10 @@ class _FakeGateway implements MonetizationGateway {
   Future<void> initialize() async => initialized = true;
 
   @override
-  Future<bool> isAvailable() async => available;
+  Future<bool> isAvailable() async => availability?.future ?? available;
 
   @override
-  Future<MonetizationProduct?> queryRemoveAds() async =>
-      const MonetizationProduct(id: 'arunika_remove_ads', price: 'US\$4.99');
+  Future<MonetizationProduct?> queryRemoveAds() async => product;
 
   @override
   Future<void> restorePurchases() async => restoreCalls++;
@@ -140,7 +144,9 @@ void main() {
   test('buy and restore delegate to the gateway', () async {
     final container = createContainer();
     addTearDown(container.dispose);
+    container.read(monetizationProvider);
     await pumpEventQueue();
+    gateway.restoreCalls = 0;
 
     await container.read(monetizationProvider.notifier).buyRemoveAds();
     await container.read(monetizationProvider.notifier).restorePurchases();
@@ -150,15 +156,89 @@ void main() {
   });
 
   test('buy failure exits checking state with a message', () async {
-    gateway.available = false;
     gateway.buyError = StateError('Pembelian belum tersedia');
     final container = createContainer();
     addTearDown(container.dispose);
 
+    container.read(monetizationProvider);
+    await pumpEventQueue();
     await container.read(monetizationProvider.notifier).buyRemoveAds();
 
     final state = container.read(monetizationProvider);
     expect(state.isVerifying, isFalse);
     expect(state.message, 'Pembelian belum tersedia');
   });
+
+  test('unavailable product never launches purchase', () async {
+    gateway.product = null;
+    final container = createContainer();
+    addTearDown(container.dispose);
+    container.read(monetizationProvider);
+    await pumpEventQueue();
+    await container.read(monetizationProvider.notifier).buyRemoveAds();
+    expect(gateway.buyCalls, 0);
+    expect(container.read(monetizationProvider).storeAvailable, isFalse);
+    expect(container.read(monetizationProvider).productPrice, isNull);
+  });
+
+  test('reconnection loads the current Play price without buying', () async {
+    gateway.available = false;
+    final container = createContainer();
+    addTearDown(container.dispose);
+    container.read(monetizationProvider);
+    await pumpEventQueue();
+    gateway.available = true;
+    await container.read(monetizationProvider.notifier).reconnectStore();
+    expect(container.read(monetizationProvider).productPrice, 'Rp79.000');
+    expect(container.read(monetizationProvider).storeAvailable, isTrue);
+    expect(gateway.buyCalls, 0);
+  });
+
+  test(
+    'canceled and pending purchases have explicit user-facing status',
+    () async {
+      final container = createContainer();
+      addTearDown(container.dispose);
+      container.read(monetizationProvider);
+      await pumpEventQueue();
+      gateway.emit(
+        const PurchaseUpdate(
+          productId: 'arunika_remove_ads',
+          status: PurchaseUpdateStatus.pending,
+        ),
+      );
+      await pumpEventQueue();
+      expect(container.read(monetizationProvider).isVerifying, isTrue);
+      expect(
+        container.read(monetizationProvider).message,
+        contains('Menunggu'),
+      );
+      gateway.emit(
+        const PurchaseUpdate(
+          productId: 'arunika_remove_ads',
+          status: PurchaseUpdateStatus.canceled,
+        ),
+      );
+      await pumpEventQueue();
+      expect(container.read(monetizationProvider).isVerifying, isFalse);
+      expect(container.read(monetizationProvider).adsRemoved, isFalse);
+      expect(
+        container.read(monetizationProvider).message,
+        contains('dibatalkan'),
+      );
+    },
+  );
+
+  test(
+    'a late unavailable result after disposal does not mutate the provider',
+    () async {
+      gateway.availability = Completer<bool>();
+      final container = createContainer();
+      container.read(monetizationProvider);
+      await pumpEventQueue();
+      container.dispose();
+      gateway.availability!.complete(false);
+      await pumpEventQueue();
+    },
+  );
 }

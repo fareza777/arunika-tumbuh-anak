@@ -1,104 +1,74 @@
-# Arunika: Tumbuh Bersama — Store Listing & ASO
+# Arunika 1.4 — materi Google Play
 
-## Metadata utama
+## Metadata
 
-- **Nama aplikasi:** Arunika: Tumbuh Bersama
-- **Paket:** `id.arunika.arunika_growth`
-- **Kategori yang disarankan:** Lifestyle
-- **Target:** orang dewasa, orang tua, wali, pengasuh, dan keluarga
-- **Bahasa utama:** Bahasa Indonesia
-- **URL kebijakan privasi:** `https://raw.githubusercontent.com/fareza777/arunika-tumbuh-anak/main/docs/privacy-policy.html`
-- **Fitur premium:** Bebas Iklan, pembelian satu kali US$4.99; harga lokal mengikuti Google Play
+- Nama: **Arunika: Tumbuh Bersama** (23 karakter).
+- Package: `id.arunika.arunika_growth`.
+- Kategori usulan: Lifestyle; bahasa utama Indonesia.
+- Pengguna: orang dewasa, orang tua, wali, pengasuh.
+- Monetisasi: banner, interstitial terbatas, dan pembelian satu kali Bebas Iklan. Semua tab dan fitur inti gratis. Harga lokal ditampilkan oleh Google Play.
+- Kebijakan privasi: `https://fareza777.github.io/arunika-tumbuh-anak/privacy-policy.html`.
 
-## Judul (maks. 30 karakter)
+## Deskripsi singkat
 
-`Arunika: Tumbuh Bersama`
-
-## Deskripsi singkat (maks. 80 karakter)
-
-`Jurnal momen dan ritual keluarga untuk hadir, mengingat, dan tumbuh bersama.`
+Catat momen, rawat kebiasaan, dan simpan cerita keluarga. Bisa offline.
 
 ## Deskripsi lengkap
 
-Hari-hari bersama sering terasa biasa saat dijalani, lalu menjadi hal yang
-paling ingin kita ingat. **Arunika: Tumbuh Bersama** adalah ruang privat untuk
-menyimpan momen, merawat ritual kecil, dan melihat benang merah kebersamaan
-keluarga tanpa target atau tekanan.
+Ada cerita kecil yang sayang terlupa: kalimat lucu saat sarapan, jalan sore, atau buku yang dibaca bersama sebelum tidur.
 
-**Satu ruang untuk hadir bersama**
+Arunika: Tumbuh Bersama membantu kamu menyimpan cerita itu sekaligus merawat kebiasaan keluarga. Mulai dari satu kalimat. Tidak perlu akun.
 
-• Buka Hari Ini dengan sapaan sunrise, progres ritual, recap mingguan, dan
-  momen terbaru.
-• Buat ritual berulang seperti cerita sebelum tidur, jalan sore, atau tiga hal
-  yang disyukuri.
-• Tandai ritual selesai dengan satu ketukan—tanpa streak yang membuat merasa
-  tertinggal.
-• Catat momen dengan judul, satu cerita, tag suasana, anggota yang hadir, dan
-  foto opsional dari perangkat.
-• Jelajahi Taman: constellation tenang dari orang, ritual, dan momen yang
-  kalian tumbuhkan.
-• Ekspor scrapbook PDF ketika ingin menyimpan atau membagikan cerita keluarga.
-• Kelola nama ruang dan anggota keluarga dari satu pengaturan yang sederhana.
+KEBIASAAN KECIL, WAKTU BERSAMA
+Buat kebiasaan sesuai hari dan waktu keluarga. Tandai setelah dilakukan. Kebiasaan bisa diarsipkan dan dipulihkan kapan saja, dengan riwayat yang tetap tersimpan.
 
-**Privat dan siap dipakai offline**
+JURNAL YANG MUDAH DIBUKA KEMBALI
+Simpan judul, cerita, suasana, tanggal, anggota yang hadir, dan foto pilihan. Cari judul atau isi catatan, saring berdasarkan suasana, lalu baca cerita lengkapnya. Edit dan bagikan saat kamu menginginkannya.
 
-Catatan inti Arunika disimpan lokal di perangkat. Tidak perlu akun dan tidak
-ada server Arunika yang menyimpan cerita keluarga. Foto hanya digunakan ketika
-Anda memilihnya. Ekspor dan berbagi selalu merupakan tindakan yang Anda mulai
-sendiri.
+MULAI DARI HARI INI
+Lihat jadwal kebiasaan hari ini dan temukan pertanyaan untuk membantu mulai menulis. Halaman Keluarga merangkum momen, kebiasaan, dan hari aktif dalam tujuh hari terakhir.
 
-Versi gratis menampilkan satu banner di area jelajah, dengan ruang yang selalu
-dicadangkan agar tampilan tidak melompat. Editor momen dan ritual bebas iklan.
-Pilih **Bebas Iklan** satu kali seharga US$4.99 untuk menghapus banner dan
-pulihkan pembelian melalui Google Play kapan saja.
+PENGINGAT SESUAI PILIHANMU
+Aktifkan satu pengingat harian dan pilih waktunya. Kamu bebas mematikannya. Tidak ada keharusan mengisi setiap hari.
 
-Arunika dibuat untuk orang dewasa yang merawat ruang kebersamaan—bukan aplikasi
-diagnosis, konsultasi, atau penilaian kesehatan.
+KENANGAN BISA DIBAWA
+Buat cadangan beserta foto untuk dipulihkan di ponsel lain. Ekspor scrapbook PDF untuk disimpan, dibagikan, atau dicetak. Berkas ekspor hanya dibagikan lewat tindakan yang kamu pilih sendiri.
 
-## Kata kunci ASO alami
+NYAMAN DIBACA
+Tampilan hangat, mode gelap, dukungan ukuran huruf perangkat, serta pilihan untuk mengurangi animasi.
 
-jurnal keluarga, catatan keluarga, momen keluarga, ritual keluarga, scrapbook
-keluarga, memory journal, family journal, gratitude journal, catatan harian,
-kenangan anak, aktivitas keluarga, kebiasaan baik, offline journal, privat.
+CATATAN INTI DI PERANGKATMU
+Jurnal bekerja tanpa internet dan tanpa akun Arunika. Isi catatan dan foto pilihan tersimpan lokal. Tidak ada sinkronisasi cloud otomatis; gunakan cadangan manual sebelum berpindah atau menghapus aplikasi. Cadangan tidak dienkripsi, jadi simpan di tempat yang kamu percayai.
 
-## Konsep 8 screenshot store
+Versi gratis menampilkan banner dan iklan selingan terbatas setelah aktivitas selesai. Halaman menulis bebas iklan. Semua tab dan fitur inti tetap terbuka gratis. Pembelian Bebas Iklan tersedia melalui Google Play dengan harga yang ditampilkan di aplikasi dan bisa dipulihkan memakai akun pembelian yang sama. Layanan iklan dapat memproses data perangkat sesuai kebijakan privasi.
 
-Gunakan ukuran portrait 9:16, latar ivory hangat, headline besar, maksimal satu
-pesan per frame, dan teks tetap terbaca pada thumbnail:
+Dibuat untuk orang dewasa, orang tua, wali, dan pengasuh yang ingin mengingat waktu bersama. Arunika adalah jurnal keluarga dan bukan layanan medis.
 
-1. `01-today.png` — “Hari ini, beri ruang untuk yang penting.”
-2. `02-rituals.png` — “Kebiasaan kecil yang terasa milik kalian.”
-3. `03-ritual-editor.png` — “Buat ritual tanpa target yang menghakimi.”
-4. `04-moments.png` — “Simpan cerita yang ingin diingat.”
-5. `05-moment-editor.png` — “Satu foto. Satu kalimat. Satu momen.”
-6. `06-garden.png` — “Lihat benang kebersamaan di Taman.”
-7. `07-scrapbook.png` — “Bawa pulang cerita kalian.”
-8. `08-privacy-ads.png` — “Privat secara default. Bebas iklan bila mau.”
+## Urutan screenshot terbaru
 
-## Data safety draft
+Gunakan screenshot dari UI versi 1.4 dengan data contoh, tanpa data keluarga asli:
 
-- **Catatan keluarga dan foto:** diproses dan disimpan lokal oleh aplikasi;
-  tidak dikirim ke server Arunika. Foto hanya dipilih dari perangkat dan
-  dapat keluar dari aplikasi saat pengguna mengekspor atau berbagi.
-- **Iklan:** Google Mobile Ads dapat memproses pengenal perangkat/iklan,
-  informasi perangkat/jaringan, dan interaksi iklan untuk penayangan,
-  pengukuran, serta frekuensi.
-- **Transaksi:** Google Play memproses pembayaran Bebas Iklan; aplikasi hanya
-  menerima status entitlement.
-- **Keamanan:** tidak ada akun Arunika; pengguna mengontrol perangkat dan
-  file ekspor.
+1. Hari ini: “Satu kebiasaan. Satu cerita.”
+2. Momen: “Cari kembali cerita favorit.”
+3. Detail cerita: “Baca lengkap. Simpan lebih dekat.”
+4. Kebiasaan: “Sesuai ritme keluarga.”
+5. Keluarga: “Lihat waktu bersama.”
+6. Pengaturan: “Cadangan dan pengingat dalam kendalimu.”
 
-## Closed testing
+Screenshot verifikasi ada di `docs/qa/2026-09-05/screenshots/`. Gambar diambil dari widget aplikasi sebenarnya menggunakan data sintetis. Pastikan hasil APK final di Play internal testing sesuai sebelum mengunggah materi toko. Foto asli pengguna tidak digunakan. Materi promosi lama termasuk video masih perlu diganti sebelum dipublikasikan.
 
-Gunakan grup tester yang sama dengan Vocatim:
+## Draft Data safety — perlu dicocokkan dengan Play Console
 
-- `swaptest-testers@googlegroups.com`
-- `testers-community@googlegroups.com`
-- `sstechnologies-test@googlegroups.com`
-- `appdadz@googlegroups.com`
+| Bagian | Perilaku versi 1.4 |
+| --- | --- |
+| Isi jurnal, anggota dan foto | Disimpan lokal; tidak dikirim ke server Arunika. Ekspor atau share dipilih pengguna. |
+| Pengingat | Izin notifikasi opsional; jadwal lokal mengikuti zona waktu perangkat. |
+| Cadangan | Berkas JSON beserta foto, tanpa enkripsi; pemulihan menggabungkan ID baru tanpa menimpa yang ada. |
+| Google Mobile Ads | SDK iklan dapat mengumpulkan atau membagikan data perangkat/iklan, interaksi dan diagnostik; isi deklarasi sesuai versi SDK, konfigurasi dan mediation yang dipakai. |
+| Pembelian | Google Play memproses pembayaran; aplikasi menerima status pembelian. |
 
-## Guardrail policy
+Jangan menjawab “tidak ada pengumpulan data” hanya karena jurnal disimpan lokal. Gunakan [panduan pengungkapan Google Mobile Ads](https://developers.google.com/admob/android/privacy/play-data-disclosure) dan verifikasi konfigurasi akun serta SDK yang benar-benar dirilis.
 
-Jangan gunakan klaim “mendiagnosis”, “pasti normal”, “terbaik”, atau istilah
-status kesehatan pada listing aktif. Jangan menampilkan screenshot legacy yang
-memuat grafik pertumbuhan, imunisasi, nutrisi, z-score, atau laporan klinis.
+## Sebelum produksi
+
+Lengkapi URL privasi publik dan kontak pengembang, Data safety, deklarasi iklan, target audiens dan rating konten. Uji pembelian/pemulihan melalui track internal Google Play, persetujuan iklan, notifikasi dan pemulihan antarperangkat. Detail bukti build serta pekerjaan akun yang masih tersisa dicatat dalam laporan audit.

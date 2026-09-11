@@ -42,7 +42,11 @@ class RecapService {
     final today = _dateOnly(now ?? DateTime.now());
     final start = today.subtract(const Duration(days: 6));
     final recentMoments = moments
-        .where((moment) => !_before(moment.capturedAt, start))
+        .where(
+          (moment) =>
+              !_before(moment.capturedAt, start) &&
+              !_dateOnly(moment.capturedAt).isAfter(today),
+        )
         .toList();
     final recentCheckIns = checkIns
         .where((checkIn) => _keyInRange(checkIn.dayKey, start, today))
@@ -75,9 +79,9 @@ class RecapService {
             : 'Yang sederhana sering paling ingin kita ingat.',
       ),
       RecapCardData(
-        eyebrow: 'RITUAL',
+        eyebrow: 'KEBIASAAN',
         title: recentCheckIns.isEmpty
-            ? 'Ritual pertama menunggu dirayakan'
+            ? 'Kebiasaan pertama menunggu'
             : '${recentCheckIns.length} kali memilih hadir',
         detail: rituals.isEmpty
             ? 'Buat satu kebiasaan kecil yang terasa milik kalian.'

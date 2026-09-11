@@ -17,6 +17,9 @@ class AppSettings {
     this.reminderIntervalWeeks = 4,
     this.reminderHour = 8,
     this.reminderMinute = 0,
+    this.journalReminderEnabled = false,
+    this.journalReminderHour = 20,
+    this.journalReminderMinute = 0,
   });
 
   final GrowthStandard standard;
@@ -33,6 +36,11 @@ class AppSettings {
   final int reminderHour;
   final int reminderMinute;
 
+  /// Persetujuan jurnal berdiri sendiri dari pengingat pengukuran lama.
+  final bool journalReminderEnabled;
+  final int journalReminderHour;
+  final int journalReminderMinute;
+
   AppSettings copyWith({
     GrowthStandard? standard,
     bool? onboardingDone,
@@ -45,6 +53,9 @@ class AppSettings {
     int? reminderIntervalWeeks,
     int? reminderHour,
     int? reminderMinute,
+    bool? journalReminderEnabled,
+    int? journalReminderHour,
+    int? journalReminderMinute,
   }) {
     return AppSettings(
       standard: standard ?? this.standard,
@@ -60,6 +71,11 @@ class AppSettings {
           reminderIntervalWeeks ?? this.reminderIntervalWeeks,
       reminderHour: reminderHour ?? this.reminderHour,
       reminderMinute: reminderMinute ?? this.reminderMinute,
+      journalReminderEnabled:
+          journalReminderEnabled ?? this.journalReminderEnabled,
+      journalReminderHour: journalReminderHour ?? this.journalReminderHour,
+      journalReminderMinute:
+          journalReminderMinute ?? this.journalReminderMinute,
     );
   }
 }
@@ -81,13 +97,17 @@ class SettingsNotifier extends Notifier<AppSettings> {
   static const _kReminderWeeks = 'reminder_weeks';
   static const _kReminderHour = 'reminder_hour';
   static const _kReminderMinute = 'reminder_minute';
+  static const _kJournalReminderEnabled = 'journal_reminder_enabled';
+  static const _kJournalReminderHour = 'journal_reminder_hour';
+  static const _kJournalReminderMinute = 'journal_reminder_minute';
 
   SharedPreferences get _prefs => ref.read(sharedPrefsProvider);
 
   @override
   AppSettings build() {
     return AppSettings(
-      standard: GrowthStandard.values[_prefs.getInt(_kStandard) ?? 0],
+      standard: GrowthStandard
+          .values[_boundedInt(_kStandard, 0, GrowthStandard.values.length - 1)],
       onboardingDone: _prefs.getBool(_kOnboarding) ?? false,
       togetherOnboardingDone: _prefs.getBool(_kTogetherOnboarding) ?? false,
       familyName: _prefs.getString(_kFamilyName) ?? 'Keluarga',
@@ -98,22 +118,72 @@ class SettingsNotifier extends Notifier<AppSettings> {
       reminderIntervalWeeks: _prefs.getInt(_kReminderWeeks) ?? 4,
       reminderHour: _prefs.getInt(_kReminderHour) ?? 8,
       reminderMinute: _prefs.getInt(_kReminderMinute) ?? 0,
+      journalReminderEnabled: _prefs.getBool(_kJournalReminderEnabled) ?? false,
+      journalReminderHour: _boundedInt(_kJournalReminderHour, 20, 23),
+      journalReminderMinute: _boundedInt(_kJournalReminderMinute, 0, 59),
     );
   }
 
+  int _boundedInt(String key, int fallback, int maximum) {
+    final value = _prefs.get(key);
+    return value is int && value >= 0 && value <= maximum ? value : fallback;
+  }
+
   Future<void> update(AppSettings next) async {
+    RangeError.checkValueInInterval(next.journalReminderHour, 0, 23, 'hour');
+    RangeError.checkValueInInterval(
+      next.journalReminderMinute,
+      0,
+      59,
+      'minute',
+    );
+    final values = <String, Object>{
+      _kStandard: next.standard.index,
+      _kOnboarding: next.onboardingDone,
+      _kTogetherOnboarding: next.togetherOnboardingDone,
+      _kFamilyName: next.familyName,
+      _kReducedMotion: next.reducedMotion,
+      _kDarkMode: next.darkMode,
+      _kAdsRemoved: next.adsRemoved,
+      _kReminderEnabled: next.reminderEnabled,
+      _kReminderWeeks: next.reminderIntervalWeeks,
+      _kReminderHour: next.reminderHour,
+      _kReminderMinute: next.reminderMinute,
+      _kJournalReminderEnabled: next.journalReminderEnabled,
+      _kJournalReminderHour: next.journalReminderHour,
+      _kJournalReminderMinute: next.journalReminderMinute,
+    };
+    final previous = <String, Object?>{};
+    try {
+      for (final entry in values.entries) {
+        if (_prefs.get(entry.key) == entry.value) continue;
+        previous[entry.key] = _prefs.get(entry.key);
+        await _write(entry.key, entry.value);
+      }
+    } catch (_) {
+      // Keep a failed save recoverable; never display a successful preference
+      // change before the device has acknowledged it.
+      for (final entry in previous.entries.toList().reversed) {
+        try {
+          await _write(entry.key, entry.value);
+        } catch (_) {
+          // Preserve the original failure for the caller's retry UI.
+        }
+      }
+      rethrow;
+    }
     state = next;
-    await _prefs.setInt(_kStandard, next.standard.index);
-    await _prefs.setBool(_kOnboarding, next.onboardingDone);
-    await _prefs.setBool(_kTogetherOnboarding, next.togetherOnboardingDone);
-    await _prefs.setString(_kFamilyName, next.familyName);
-    await _prefs.setBool(_kReducedMotion, next.reducedMotion);
-    await _prefs.setBool(_kDarkMode, next.darkMode);
-    await _prefs.setBool(_kAdsRemoved, next.adsRemoved);
-    await _prefs.setBool(_kReminderEnabled, next.reminderEnabled);
-    await _prefs.setInt(_kReminderWeeks, next.reminderIntervalWeeks);
-    await _prefs.setInt(_kReminderHour, next.reminderHour);
-    await _prefs.setInt(_kReminderMinute, next.reminderMinute);
+  }
+
+  Future<void> _write(String key, Object? value) async {
+    final saved = await switch (value) {
+      bool value => _prefs.setBool(key, value),
+      int value => _prefs.setInt(key, value),
+      String value => _prefs.setString(key, value),
+      null => _prefs.remove(key),
+      _ => throw ArgumentError.value(value, key),
+    };
+    if (!saved) throw StateError('Pengaturan belum berhasil disimpan.');
   }
 }
 

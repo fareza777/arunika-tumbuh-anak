@@ -33,6 +33,7 @@ migrate_working_dir/
 **/node_modules/
 /build/
 /coverage/
+/tmp/
 
 # Local release credentials/identifiers; never commit production ad IDs.
 /tool/release/*.json

@@ -8,6 +8,9 @@ void main() {
     expect(config.productId, 'arunika_remove_ads');
     expect(config.bannerAdUnitId, contains('3940256099942544'));
     expect(config.interstitialAdUnitId, contains('3940256099942544'));
+    expect(config.rewardedAdUnitId, MonetizationConfig.testRewardedAdUnitId);
+    expect(config.enableRewarded, isFalse);
+    expect(config.canUseRewarded, isFalse);
     expect(config.isValidForRelease, isTrue);
   });
 
@@ -21,6 +24,22 @@ void main() {
     );
 
     expect(config.isValidForRelease, isFalse);
+    expect(config.enableRewarded, isFalse);
+    expect(config.canUseRewarded, isFalse);
+  });
+
+  test('rewarded requires explicit opt in even when a real ID is present', () {
+    const config = MonetizationConfig(
+      productId: 'arunika_remove_ads',
+      admobAppId: 'ca-app-pub-1234567890123456~1234567890',
+      bannerAdUnitId: 'ca-app-pub-1234567890123456/1234567890',
+      interstitialAdUnitId: 'ca-app-pub-1234567890123456/0987654321',
+      rewardedAdUnitId: 'ca-app-pub-1234567890123456/1234567892',
+      isRelease: true,
+    );
+    expect(config.canUseBanner, isTrue);
+    expect(config.canUseInterstitial, isTrue);
+    expect(config.canUseRewarded, isFalse);
   });
 
   test('release with real-looking IDs is valid', () {

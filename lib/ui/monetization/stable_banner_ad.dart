@@ -7,6 +7,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../domain/monetization/ad_retry_policy.dart';
+import '../../domain/monetization/ad_presentations.dart';
 import '../../domain/monetization/monetization_config.dart';
 import '../../state/monetization_provider.dart';
 
@@ -84,6 +85,7 @@ class _StableBannerAdState extends ConsumerState<StableBannerAd> {
   var _loading = false;
   var _hasError = false;
   var _adLoaded = false;
+  var _generation = 0;
 
   @override
   void initState() {
@@ -94,10 +96,16 @@ class _StableBannerAdState extends ConsumerState<StableBannerAd> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(monetizationProvider);
-    if (state.adsRemoved) {
-      _disposeAd();
-      return const SizedBox.shrink();
-    }
+    ref.listen(monetizationProvider, (previous, next) {
+      if (previous?.adsSuppressed != next.adsSuppressed ||
+          previous?.adConsentRevision != next.adConsentRevision) {
+        _disposeAd();
+        if (!next.adsSuppressed) {
+          WidgetsBinding.instance.addPostFrameCallback((_) => _load());
+        }
+      }
+    });
+    if (state.adsSuppressed) return const SizedBox.shrink();
 
     final ad = _ad;
     final adHeight = (_adSize?.height ?? StableBannerSlot.defaultHeight)
@@ -119,25 +127,30 @@ class _StableBannerAdState extends ConsumerState<StableBannerAd> {
 
   Future<void> _load() async {
     if (!mounted || _loading || _ad != null) return;
-    if (ref.read(monetizationProvider).adsRemoved) return;
+    if (ref.read(monetizationProvider).adsSuppressed) return;
 
     final mobile =
         defaultTargetPlatform == TargetPlatform.android ||
         defaultTargetPlatform == TargetPlatform.iOS;
-    if (!mobile || (_config.isRelease && !_config.isValidForRelease)) {
+    if (kIsWeb || !mobile || !_config.canUseBanner) {
       if (mounted) setState(() => _hasError = true);
       return;
     }
 
     _loading = true;
+    final generation = ++_generation;
     if (mounted) setState(() => _hasError = false);
 
     try {
+      if (!await canRequestMobileAds()) {
+        _failLoad(generation);
+        return;
+      }
       // A standard 320x50 banner keeps the anchored slot compact and stable
       // across devices. The previous large adaptive format left a visibly
       // tall strip at the bottom of the family journal.
       const size = AdSize.banner;
-      if (!mounted) return;
+      if (!_isCurrent(generation)) return;
 
       final ad = BannerAd(
         size: size,
@@ -145,7 +158,7 @@ class _StableBannerAdState extends ConsumerState<StableBannerAd> {
         request: const AdRequest(),
         listener: BannerAdListener(
           onAdLoaded: (loaded) {
-            if (!mounted) {
+            if (!_isCurrent(generation)) {
               loaded.dispose();
               return;
             }
@@ -160,8 +173,9 @@ class _StableBannerAdState extends ConsumerState<StableBannerAd> {
           },
           onAdFailedToLoad: (failed, _) {
             failed.dispose();
-            if (!mounted) return;
+            if (!_isCurrent(generation)) return;
             setState(() {
+              _ad = null;
               _loading = false;
               _hasError = true;
               _adLoaded = false;
@@ -174,7 +188,7 @@ class _StableBannerAdState extends ConsumerState<StableBannerAd> {
       _ad = ad;
       await ad.load();
     } catch (_) {
-      if (!mounted) return;
+      if (!_isCurrent(generation)) return;
       _ad?.dispose();
       _ad = null;
       _adLoaded = false;
@@ -187,16 +201,32 @@ class _StableBannerAdState extends ConsumerState<StableBannerAd> {
     }
   }
 
+  bool _isCurrent(int generation) =>
+      mounted &&
+      generation == _generation &&
+      !ref.read(monetizationProvider).adsSuppressed;
+
+  void _failLoad(int generation) {
+    if (!_isCurrent(generation)) return;
+    setState(() {
+      _loading = false;
+      _hasError = true;
+      _failureCount++;
+    });
+    _scheduleRetry();
+  }
+
   void _scheduleRetry() {
     _retryTimer?.cancel();
     _retryTimer = Timer(AdRetryPolicy.nextDelay(_failureCount - 1), () {
-      if (!mounted) return;
+      if (!mounted || ref.read(monetizationProvider).adsSuppressed) return;
       _ad = null;
       unawaited(_load());
     });
   }
 
   void _disposeAd() {
+    _generation++;
     _retryTimer?.cancel();
     _retryTimer = null;
     _ad?.dispose();
@@ -204,6 +234,7 @@ class _StableBannerAdState extends ConsumerState<StableBannerAd> {
     _adSize = null;
     _adLoaded = false;
     _loading = false;
+    _hasError = false;
   }
 
   @override

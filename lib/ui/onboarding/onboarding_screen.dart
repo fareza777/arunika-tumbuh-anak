@@ -1,406 +1,338 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
-
-import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_motion.dart';
+import 'package:uuid/uuid.dart';
 import '../../core/theme/app_theme.dart';
 import '../../state/app_settings.dart';
 import '../../state/together_providers.dart';
 import '../navigation/main_shell.dart';
+import '../settings/privacy_screen.dart';
 import '../widgets/editorial_background.dart';
 import '../widgets/editorial_card.dart';
+import '../widgets/journal_components.dart';
+import '../widgets/arunika_artwork.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
-
   @override
   ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
-  final _pageController = PageController();
-  final _familyController = TextEditingController(text: 'Keluarga');
-  final _memberController = TextEditingController();
-  var _index = 0;
-  var _saving = false;
-
-  Future<void> _finish() async {
-    if (_saving) return;
-    setState(() => _saving = true);
-    final familyName = _familyController.text.trim().isEmpty
-        ? 'Keluarga'
-        : _familyController.text.trim();
-    final settings = ref.read(settingsProvider);
-    await ref
-        .read(settingsProvider.notifier)
-        .update(
-          settings.copyWith(
-            onboardingDone: true,
-            togetherOnboardingDone: true,
-            familyName: familyName,
-          ),
-        );
-    final memberName = _memberController.text.trim();
-    if (memberName.isNotEmpty) {
-      await ref.read(togetherActionsProvider).addMember(name: memberName);
-    }
-    await ref.read(togetherActionsProvider).seedStarterRituals();
-    if (!mounted) return;
-    Navigator.of(context).pushReplacement(
-      PageRouteBuilder(
-        transitionDuration: AppMotion.duration(
-          context,
-          const Duration(milliseconds: 500),
-        ),
-        pageBuilder: (_, _, _) => const MainShell(),
-        transitionsBuilder: (_, animation, _, child) =>
-            FadeTransition(opacity: animation, child: child),
-      ),
-    );
-  }
-
-  void _next() {
-    if (_index == 2) {
-      _finish();
-      return;
-    }
-    _pageController.nextPage(
-      duration: AppMotion.duration(context, const Duration(milliseconds: 420)),
-      curve: AppMotion.standard,
-    );
-  }
-
+  final _family = TextEditingController();
+  final _member = TextEditingController();
+  final _memberId = const Uuid().v4();
+  final _form = GlobalKey<FormState>();
+  bool _setup = false;
+  bool _saving = false;
+  bool _starter = true;
+  bool _memberSaved = false;
+  String? _error;
   @override
   void dispose() {
-    _pageController.dispose();
-    _familyController.dispose();
-    _memberController.dispose();
+    _family.dispose();
+    _member.dispose();
     super.dispose();
   }
 
+  Future<void> _finish() async {
+    if (_saving || !(_form.currentState?.validate() ?? false)) return;
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+    try {
+      if (_member.text.trim().isNotEmpty && !_memberSaved) {
+        await ref
+            .read(togetherActionsProvider)
+            .addMember(name: _member.text.trim(), id: _memberId);
+        _memberSaved = true;
+      }
+      if (_starter) {
+        await ref.read(togetherActionsProvider).seedStarterRituals();
+      }
+      final family = _family.text.trim();
+      await ref
+          .read(settingsProvider.notifier)
+          .update(
+            ref
+                .read(settingsProvider)
+                .copyWith(
+                  familyName: family.isEmpty ? 'Keluarga' : family,
+                  togetherOnboardingDone: true,
+                  onboardingDone: true,
+                ),
+          );
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(builder: (_) => const MainShell()),
+      );
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _saving = false;
+          _error =
+              'Ruang keluarga belum selesai disimpan. Coba lagi; isianmu tetap ada.';
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: EditorialBackground(
-        child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 12, 18, 0),
-                child: Row(
-                  children: [
-                    const _BrandMark(),
-                    const Spacer(),
-                    TextButton(
-                      onPressed: _saving ? null : _finish,
-                      child: const Text('Lewati'),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: PageView(
-                  controller: _pageController,
-                  onPageChanged: (value) => setState(() => _index = value),
-                  children: [
-                    const _IntroPage(
-                      icon: PhosphorIconsLight.sunHorizon,
-                      eyebrow: 'SELAMAT DATANG DI RUMAH',
-                      title: 'Yang kecil hari ini,\nbesar nanti.',
-                      body:
-                          'Arunika membantu keluarga menyimpan cerita, merayakan kebiasaan kecil, dan melihat hari-hari bersama dengan lebih sadar.',
-                      accent: AppColors.gold,
-                    ),
-                    const _IntroPage(
-                      icon: PhosphorIconsLight.sparkle,
-                      eyebrow: 'RITUAL, BUKAN TARGET',
-                      title: 'Kebersamaan tidak\nperlu sempurna.',
-                      body:
-                          'Pilih satu jeda yang terasa milik kalian. Ulangi saat sempat. Setiap tanda hadir adalah benang baru di Taman Arunika.',
-                      accent: AppColors.sageDeep,
-                    ),
-                    _SetupPage(
-                      familyController: _familyController,
-                      memberController: _memberController,
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(28, 0, 28, 24),
+    final c = Theme.of(context).colorScheme;
+    return PopScope(
+      canPop: !_setup && !_saving,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && !_saving) setState(() => _setup = false);
+      },
+      child: Scaffold(
+        body: EditorialBackground(
+          child: SafeArea(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 640),
                 child: Column(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(
-                        3,
-                        (i) => AnimatedContainer(
-                          duration: AppMotion.duration(
-                            context,
-                            const Duration(milliseconds: 260),
-                          ),
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          width: i == _index ? 30 : 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: i == _index
-                                ? AppColors.terracotta
-                                : AppColors.goldSoft,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      child: _header(context),
+                    ),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        key: ValueKey(_setup),
+                        padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
+                        child: _setup ? _setupForm(context) : _welcome(context),
                       ),
                     ),
-                    const SizedBox(height: 22),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: _saving ? null : _next,
-                        icon: const PhosphorIcon(
-                          PhosphorIconsLight.arrowRight,
-                          size: 20,
-                        ),
-                        label: Text(
-                          _index == 2 ? 'Masuk ke Arunika' : 'Lanjut',
-                        ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
+                      child: Column(
+                        children: [
+                          if (_error != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: Text(
+                                _error!,
+                                style: TextStyle(color: c.error),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton.icon(
+                              onPressed: _saving
+                                  ? null
+                                  : _setup
+                                  ? _finish
+                                  : () => setState(() => _setup = true),
+                              icon: _saving
+                                  ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : Icon(
+                                      _setup
+                                          ? Icons.check
+                                          : Icons.arrow_forward,
+                                    ),
+                              label: Text(
+                                _saving
+                                    ? 'Menyiapkan ruang keluarga…'
+                                    : _setup
+                                    ? 'Mulai cerita keluarga'
+                                    : 'Buat ruang keluarga',
+                              ),
+                            ),
+                          ),
+                          if (!_setup)
+                            TextButton(
+                              onPressed: () => Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder: (_) => const PrivacyScreen(),
+                                ),
+                              ),
+                              child: const Text(
+                                'Tanpa akun · Pelajari privasi',
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
-}
 
-class _BrandMark extends StatelessWidget {
-  const _BrandMark();
+  Widget _header(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final c = Theme.of(context).colorScheme;
+      final stackProgress =
+          constraints.maxWidth < 500 &&
+          MediaQuery.textScalerOf(context).scale(14) > 20;
+      final leading = _setup
+          ? IconButton(
+              tooltip: 'Kembali',
+              onPressed: _saving ? null : () => setState(() => _setup = false),
+              icon: const Icon(Icons.arrow_back),
+            )
+          : Icon(Icons.wb_sunny_outlined, color: c.tertiary, size: 30);
+      final brand = Text('Arunika', style: AppTheme.serif(size: 24));
+      final progress = Text(
+        _setup ? '2 dari 2' : '1 dari 2',
+        style: TextStyle(color: c.onSurfaceVariant, fontSize: 12),
+      );
+      final branding = Row(
+        children: [
+          leading,
+          const SizedBox(width: 10),
+          Expanded(child: brand),
+          if (!stackProgress) ...[const SizedBox(width: 8), progress],
+        ],
+      );
+      if (!stackProgress) return branding;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          branding,
+          const SizedBox(height: 4),
+          Align(alignment: Alignment.centerRight, child: progress),
+        ],
+      );
+    },
+  );
 
-  @override
-  Widget build(BuildContext context) {
-    return Row(
+  Widget _welcome(BuildContext context) {
+    final c = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 34,
-          height: 34,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: AppColors.sunrise,
-          ),
-          child: const PhosphorIcon(
-            PhosphorIconsLight.sun,
-            size: 19,
-            color: AppColors.espresso,
+        const ArunikaArtwork(),
+        const SizedBox(height: 24),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final compactHeadline =
+                constraints.maxWidth < 500 &&
+                MediaQuery.textScalerOf(context).scale(14) > 20;
+            return Text(
+              'Simpan yang kecil.\nIngat bersama.',
+              style: AppTheme.serif(
+                size: compactHeadline ? 26 : 36,
+                height: 1.14,
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'Jurnal dan kebiasaan keluarga, dalam satu tempat yang tenang.',
+          style: AppTheme.sans(
+            size: 16,
+            height: 1.6,
+            color: c.onSurfaceVariant,
           ),
         ),
-        const SizedBox(width: 10),
-        Text(
-          'ARUNIKA',
-          style: AppTheme.sans(
-            size: 11,
-            weight: FontWeight.w800,
-            letterSpacing: 2.1,
-          ),
+        const SizedBox(height: 26),
+        _promise(
+          context,
+          Icons.wifi_off,
+          'Catat kapan saja, termasuk tanpa internet.',
+        ),
+        _promise(
+          context,
+          Icons.photo_library_outlined,
+          'Cari kembali cerita dan foto favorit.',
+        ),
+        _promise(
+          context,
+          Icons.save_alt,
+          'Bawa kenangan lewat cadangan dan PDF.',
         ),
       ],
     );
   }
-}
 
-class _IntroPage extends StatelessWidget {
-  const _IntroPage({
-    required this.icon,
-    required this.eyebrow,
-    required this.title,
-    required this.body,
-    required this.accent,
-  });
-
-  final IconData icon;
-  final String eyebrow;
-  final String title;
-  final String body;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(30, 34, 30, 18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Spacer(),
-          Align(
-            alignment: Alignment.center,
-            child: Container(
-              width: 188,
-              height: 188,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: accent.withValues(alpha: 0.13),
-                border: Border.all(color: accent.withValues(alpha: 0.35)),
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    width: 122,
-                    height: 122,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.paper.withValues(alpha: 0.88),
-                      boxShadow: AppColors.softShadow(
-                        opacity: 0.08,
-                        blur: 22,
-                        y: 8,
-                      ),
-                    ),
-                  ),
-                  PhosphorIcon(icon, size: 58, color: accent),
-                  Positioned(
-                    right: 20,
-                    top: 30,
-                    child: Icon(
-                      Icons.circle,
-                      size: 8,
-                      color: accent.withValues(alpha: 0.65),
-                    ),
-                  ),
-                  Positioned(
-                    left: 25,
-                    bottom: 34,
-                    child: Icon(
-                      Icons.circle,
-                      size: 5,
-                      color: accent.withValues(alpha: 0.45),
-                    ),
-                  ),
-                ],
-              ),
+  Widget _promise(BuildContext context, IconData icon, String text) => Padding(
+    padding: const EdgeInsets.only(bottom: 14),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 23, color: Theme.of(context).colorScheme.secondary),
+        const SizedBox(width: 12),
+        Expanded(child: Text(text, style: const TextStyle(height: 1.5))),
+      ],
+    ),
+  );
+  Widget _setupForm(BuildContext context) => Form(
+    key: _form,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const JournalHeader(
+          title: 'Untuk keluarga kalian',
+          subtitle:
+              'Isi sekarang atau biarkan kosong. Semuanya bisa diubah nanti.',
+        ),
+        const SizedBox(height: 26),
+        TextFormField(
+          controller: _family,
+          enabled: !_saving,
+          maxLength: 60,
+          textCapitalization: TextCapitalization.words,
+          textInputAction: TextInputAction.next,
+          decoration: const InputDecoration(
+            labelText: 'Nama keluarga (opsional)',
+            hintText: 'Contoh: Keluarga Pratama',
+            prefixIcon: Icon(Icons.home_outlined),
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextFormField(
+          controller: _member,
+          enabled: !_saving && !_memberSaved,
+          maxLength: 60,
+          textCapitalization: TextCapitalization.words,
+          decoration: const InputDecoration(
+            labelText: 'Nama panggilan anggota (opsional)',
+            hintText: 'Siapa yang ingin kamu catat ceritanya?',
+            prefixIcon: Icon(Icons.person_outline),
+          ),
+        ),
+        const SizedBox(height: 20),
+        EditorialCard(
+          shadow: false,
+          padding: const EdgeInsets.all(4),
+          child: CheckboxListTile(
+            value: _starter,
+            onChanged: _saving
+                ? null
+                : (v) => setState(() => _starter = v ?? false),
+            controlAffinity: ListTileControlAffinity.leading,
+            title: const Text('Bantu mulai dengan 3 kebiasaan'),
+            subtitle: const Text(
+              'Cerita sebelum tidur, berbagi rasa syukur, dan jalan akhir pekan. Bisa diubah atau diarsipkan.',
             ),
           ),
-          const Spacer(),
-          EditorialEyebrow(eyebrow, color: accent),
-          const SizedBox(height: 14),
-          Text(
-            title,
-            style: AppTheme.serif(
-              size: 37,
-              weight: FontWeight.w600,
-              height: 1.08,
-            ),
+        ),
+        const SizedBox(height: 22),
+        Text(
+          'Catatan tersimpan di perangkat ini. Buat cadangan dari Pengaturan saat ingin berpindah ponsel.',
+          style: TextStyle(
+            height: 1.6,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
-          const SizedBox(height: 18),
-          Text(
-            body,
-            style: AppTheme.sans(
-              size: 15,
-              color: AppColors.inkSoft,
-              height: 1.65,
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
-      ),
-    );
-  }
-}
-
-class _SetupPage extends StatelessWidget {
-  const _SetupPage({
-    required this.familyController,
-    required this.memberController,
-  });
-
-  final TextEditingController familyController;
-  final TextEditingController memberController;
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(30, 34, 30, 18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 20),
-          EditorialCard(
-            color: AppColors.sunrise.colors.first.withValues(alpha: 0.9),
-            shadow: false,
-            child: const Row(
-              children: [
-                PhosphorIcon(
-                  PhosphorIconsLight.heart,
-                  size: 32,
-                  color: AppColors.espresso,
-                ),
-                SizedBox(width: 14),
-                Expanded(
-                  child: Text(
-                    'Buat ruang kecil untuk cerita kalian.',
-                    style: TextStyle(
-                      fontFamily: 'PlusJakartaSans',
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.espresso,
-                      height: 1.35,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 34),
-          const EditorialEyebrow('SATU MENIT UNTUK MULAI'),
-          const SizedBox(height: 14),
-          Text(
-            'Siapa yang tinggal\ndi ruang ini?',
-            style: AppTheme.serif(
-              size: 36,
-              weight: FontWeight.w600,
-              height: 1.08,
-            ),
-          ),
-          const SizedBox(height: 14),
-          Text(
-            'Nama ruang dan satu nama anggota sudah cukup. Semua bisa diubah nanti.',
-            style: AppTheme.sans(
-              size: 14,
-              color: AppColors.inkSoft,
-              height: 1.6,
-            ),
-          ),
-          const SizedBox(height: 26),
-          TextField(
-            controller: familyController,
-            textInputAction: TextInputAction.next,
-            decoration: const InputDecoration(
-              labelText: 'Nama ruang keluarga',
-              prefixIcon: PhosphorIcon(PhosphorIconsLight.house),
-            ),
-          ),
-          const SizedBox(height: 14),
-          TextField(
-            controller: memberController,
-            textInputAction: TextInputAction.done,
-            decoration: const InputDecoration(
-              labelText: 'Nama anggota (opsional)',
-              prefixIcon: PhosphorIcon(PhosphorIconsLight.user),
-            ),
-          ),
-          const SizedBox(height: 18),
-          Text(
-            'Disimpan lokal di perangkat ini. Tidak perlu akun.',
-            style: AppTheme.sans(
-              size: 11.5,
-              color: AppColors.inkFaint,
-              height: 1.5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
 }

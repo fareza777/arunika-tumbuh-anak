@@ -1,24 +1,36 @@
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
-/// Database SQLite lokal — seluruh data anak tersimpan privat di perangkat.
+/// Database SQLite lokal untuk jurnal keluarga dan catatan lama di perangkat.
 class AppDatabase {
-  AppDatabase._();
+  AppDatabase({this.path, this.factory});
 
-  static final AppDatabase instance = AppDatabase._();
-  static Database? _db;
+  static final AppDatabase instance = AppDatabase();
+  final String? path;
+  final DatabaseFactory? factory;
+  Future<Database>? _opening;
 
-  Future<Database> get database async {
-    if (_db != null) return _db!;
-    final path = p.join(await getDatabasesPath(), 'arunika.db');
-    _db = await openDatabase(
-      path,
-      version: 3,
-      onConfigure: (db) async => db.execute('PRAGMA foreign_keys = ON'),
-      onCreate: _onCreate,
-      onUpgrade: _onUpgrade,
-    );
-    return _db!;
+  Future<Database> get database => _opening ??= _open();
+
+  Future<Database> _open() async {
+    try {
+      final selectedFactory = factory ?? databaseFactory;
+      final selectedPath =
+          path ??
+          p.join(await selectedFactory.getDatabasesPath(), 'arunika.db');
+      return await selectedFactory.openDatabase(
+        selectedPath,
+        options: OpenDatabaseOptions(
+          version: 3,
+          onConfigure: (db) async => db.execute('PRAGMA foreign_keys = ON'),
+          onCreate: _onCreate,
+          onUpgrade: _onUpgrade,
+        ),
+      );
+    } catch (_) {
+      _opening = null;
+      rethrow;
+    }
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -174,7 +186,8 @@ class AppDatabase {
   }
 
   Future<void> close() async {
-    await _db?.close();
-    _db = null;
+    final opening = _opening;
+    _opening = null;
+    if (opening != null) await (await opening).close();
   }
 }

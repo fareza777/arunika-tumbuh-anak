@@ -1,4 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Production AdMob application ID for Arunika. -->
-    <string name="admob_app_id">ca-app-pub-6279186647593327~8694497752</string>
+    <!-- AdMob application ID is generated per build type from private dart defines. -->
 </resources>

@@ -1,21 +1,13 @@
-# Asset Store Arunika
+# Aset toko Arunika
 
-`feature-graphic.png` adalah feature graphic baru berukuran 1.024 × 500 untuk
-Play Console. Gunakan aset ini, bukan `feature-graphic.jpg` lama yang masih
-memuat positioning pertumbuhan anak.
+## Versi 1.4 (5 September 2026)
 
-Delapan screenshot portrait 9:16 (1080 × 1920 px) dari komposisi Remotion
-Editorial Sunrise. Urutkan seperti ini di Google Play:
+Gunakan gambar dari UI terbaru di `docs/qa/2026-09-05/screenshots/`. Capture ini dirender dari widget Flutter sebenarnya dengan font aplikasi dan data keluarga contoh. Sufiks nama menunjukkan ukuran logis, tema, dan skala teks; resolusi PNG menggunakan pixel ratio 2.
 
-1. `01-today.png` — Hari Ini dengan progres ritual dan momen terbaru.
-2. `02-rituals.png` — Daftar kebiasaan kecil yang dipilih keluarga.
-3. `03-ritual-editor.png` — Editor ritual dengan waktu dan hari berulang.
-4. `04-moments.png` — Arsip momen dengan tag suasana.
-5. `05-moment-editor.png` — Catat momen dengan foto opsional dan satu cerita.
-6. `06-garden.png` — Taman constellation dari orang dan kenangan.
-7. `07-scrapbook.png` — Ekspor scrapbook privat ke PDF.
-8. `08-privacy-ads.png` — Privasi lokal dan opsi Bebas Iklan US$4.99.
+Urutan yang disarankan: main-shell, moments, moment-detail, rituals, family, settings. Capture onboarding menunjukkan ilustrasi dan pengaturan awal. Versi dark-2x adalah bukti aksesibilitas, bukan urutan utama screenshot toko. Periksa pula capture APK di folder `device` dan laporan audit.
 
-Alt text yang disarankan mengikuti headline di `store/aso.md`. Aset dibuat dari
-UI mockup yang tidak memakai data keluarga nyata; setelah build final tersedia,
-ambil screenshot perangkat untuk pengujian visual tambahan.
+## Materi terdahulu
+
+PNG/JPG, video dan komposisi Remotion yang sudah ada dipertahankan sebagai arsip. Materi yang menyebut Taman, harga tetap dolar, grafik pertumbuhan, imunisasi, atau nutrisi tidak mencerminkan aplikasi aktif. Jangan unggah sebagai screenshot versi 1.4. `feature-graphic.png` lama juga perlu ditinjau kesesuaiannya sebelum digunakan.
+
+Deskripsi toko terbaru ada di `store/aso.md`. Publikasi materi toko tetap memerlukan pemeriksaan build internal Google Play.

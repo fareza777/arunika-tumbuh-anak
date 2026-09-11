@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'app_colors.dart';
 
@@ -155,29 +156,56 @@ class AppTheme {
 
     final colorScheme = (dark ? ColorScheme.dark() : ColorScheme.light())
         .copyWith(
-          primary: AppColors.gold,
-          onPrimary: dark ? AppColors.ink : Colors.white,
-          primaryContainer: primaryContainer,
-          onPrimaryContainer: onPrimaryContainer,
-          secondary: dark ? const Color(0xFFB7CDBB) : AppColors.goldDeep,
+          primary: dark ? const Color(0xFFF3B69E) : AppColors.terracottaDeep,
+          onPrimary: dark ? AppColors.espresso : Colors.white,
+          primaryContainer: dark
+              ? AppColors.nightTerracottaMist
+              : AppColors.terracottaMist,
+          onPrimaryContainer: dark
+              ? const Color(0xFFFFD9C9)
+              : AppColors.terracottaDeep,
+          secondary: dark ? const Color(0xFFB7CDBB) : AppColors.sageDeep,
           onSecondary: dark ? AppColors.ink : Colors.white,
+          secondaryContainer: dark
+              ? AppColors.nightSageMist
+              : AppColors.sageMist,
+          onSecondaryContainer: dark
+              ? const Color(0xFFD6E8D7)
+              : AppColors.sageDeep,
+          tertiary: dark ? const Color(0xFFFFD982) : AppColors.goldDeep,
+          tertiaryContainer: primaryContainer,
+          onTertiaryContainer: onPrimaryContainer,
           surface: surface,
+          surfaceContainer: surface,
+          surfaceContainerLow: canvas,
+          surfaceContainerLowest: canvas,
+          surfaceContainerHigh: surfaceRaised,
           onSurface: foreground,
           onSurfaceVariant: foregroundSoft,
           surfaceContainerHighest: surfaceRaised,
-          error: AppColors.danger,
+          error: dark ? const Color(0xFFFFB4A6) : const Color(0xFFAA3D31),
+          errorContainer: dark ? const Color(0xFF4B2521) : AppColors.dangerSoft,
+          onErrorContainer: dark
+              ? const Color(0xFFFFDAD3)
+              : const Color(0xFF842D25),
           onError: Colors.white,
           outline: outline,
           outlineVariant: dark ? AppColors.nightGoldMist : AppColors.goldSoft,
           shadow: dark ? Colors.black : const Color(0xFF8A7A58),
+          surfaceTint: Colors.transparent,
         );
 
     return base.copyWith(
+      materialTapTargetSize: MaterialTapTargetSize.padded,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: canvas,
+      cardColor: surface,
       textTheme: textTheme,
       primaryTextTheme: textTheme,
       appBarTheme: AppBarTheme(
+        systemOverlayStyle: dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark,
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
@@ -231,8 +259,9 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.gold,
-          foregroundColor: Colors.white,
+          backgroundColor: colorScheme.primary,
+          foregroundColor: colorScheme.onPrimary,
+          minimumSize: const Size(48, 52),
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(
@@ -245,14 +274,51 @@ class AppTheme {
           ),
         ),
       ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          minimumSize: const Size(48, 52),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          textStyle: sans(size: 14, weight: FontWeight.w700),
+        ),
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(minimumSize: const Size(48, 48)),
+      ),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
+        elevation: 0,
+        focusElevation: 0,
+        hoverElevation: 0,
+        highlightElevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        extendedTextStyle: sans(size: 14, weight: FontWeight.w700),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: surface,
+        indicatorColor: colorScheme.primaryContainer,
+        elevation: 0,
+        height: 76,
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => sans(
+            size: 11,
+            weight: states.contains(WidgetState.selected)
+                ? FontWeight.w800
+                : FontWeight.w600,
+            color: states.contains(WidgetState.selected)
+                ? colorScheme.primary
+                : foregroundSoft,
+          ),
+        ),
+      ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: dark ? const Color(0xFFFFD982) : AppColors.goldDeep,
-          textStyle: sans(
-            size: 14,
-            weight: FontWeight.w700,
-            color: dark ? const Color(0xFFFFD982) : AppColors.goldDeep,
-          ),
+          minimumSize: const Size(48, 48),
+          foregroundColor: colorScheme.primary,
+          textStyle: sans(size: 14, weight: FontWeight.w700),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -339,7 +405,7 @@ class AppTheme {
           TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
         },
       ),
-      splashFactory: NoSplash.splashFactory,
+      splashFactory: InkRipple.splashFactory,
       visualDensity: VisualDensity.standard,
     );
   }

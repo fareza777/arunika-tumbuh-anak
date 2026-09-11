@@ -1,0 +1,8 @@
+base/lib/arm64-v8a/libapp.so: LOAD exponents 16,16,16; 16KiB PASS
+base/lib/arm64-v8a/libdartjni.so: LOAD exponents 14,14,14; 16KiB PASS
+base/lib/arm64-v8a/libdatastore_shared_counter.so: LOAD exponents 14,14,14; 16KiB PASS
+base/lib/arm64-v8a/libflutter.so: LOAD exponents 16,16,16; 16KiB PASS
+base/lib/x86_64/libapp.so: LOAD exponents 16,16,16; 16KiB PASS
+base/lib/x86_64/libdartjni.so: LOAD exponents 14,14,14; 16KiB PASS
+base/lib/x86_64/libdatastore_shared_counter.so: LOAD exponents 14,14; 16KiB PASS
+base/lib/x86_64/libflutter.so: LOAD exponents 16,16,16; 16KiB PASS

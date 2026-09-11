@@ -1,471 +1,584 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:share_plus/share_plus.dart';
-
 import '../../app.dart';
-import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme.dart';
-import '../../data/models/family_member.dart';
+import '../../domain/together/journal_backup_service.dart';
 import '../../domain/together/scrapbook_pdf.dart';
 import '../../state/app_settings.dart';
+import '../../state/journal_reminder_provider.dart';
 import '../../state/monetization_provider.dart';
 import '../../state/together_providers.dart';
 import '../monetization/remove_ads_card.dart';
-import '../together/family_member_editor_sheet.dart';
-import '../widgets/editorial_background.dart';
 import '../widgets/editorial_card.dart';
+import '../widgets/journal_components.dart';
+import 'privacy_screen.dart';
 
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
-
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(settingsProvider);
-    final members = ref.watch(familyMembersProvider);
-    return Scaffold(
-      body: EditorialBackground(
-        child: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 38),
-            children: [
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    tooltip: 'Kembali',
-                    icon: const PhosphorIcon(PhosphorIconsLight.arrowLeft),
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  bool _busy = false;
+  String _activity = '';
+  Future<void> _run(String activity, Future<void> Function() action) async {
+    if (_busy) return;
+    setState(() {
+      _busy = true;
+      _activity = activity;
+    });
+    try {
+      await action();
+    } on FormatException catch (error) {
+      if (mounted) {
+        journalMessage(
+          context,
+          'Berkas belum dapat diproses. ${error.message}',
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        journalMessage(
+          context,
+          'Belum berhasil. Periksa ruang penyimpanan atau izin perangkat, lalu coba lagi.',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _familyName() async {
+    final old = ref.read(settingsProvider).familyName;
+    final value = await showDialog<String>(
+      context: context,
+      builder: (_) => _FamilyNameDialog(initial: old),
+    );
+    if (value == null) return;
+    await _run(
+      'Menyimpan nama keluarga…',
+      () => ref
+          .read(settingsProvider.notifier)
+          .update(ref.read(settingsProvider).copyWith(familyName: value)),
+    );
+  }
+
+  Future<void> _reminder(bool enabled) => _run('Mengatur pengingat…', () async {
+    final granted = await ref.read(journalReminderProvider).setEnabled(enabled);
+    if (!mounted) return;
+    journalMessage(
+      context,
+      !granted
+          ? 'Izin notifikasi belum aktif. Izinkan Arunika di Pengaturan Android untuk menerima pengingat.'
+          : enabled
+          ? 'Pengingat harian aktif.'
+          : 'Pengingat harian dimatikan.',
+    );
+  });
+  Future<void> _time() async {
+    final settings = ref.read(settingsProvider);
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(
+        hour: settings.journalReminderHour,
+        minute: settings.journalReminderMinute,
+      ),
+    );
+    if (time == null) return;
+    await _run('Menyimpan waktu…', () async {
+      final allowed = await ref
+          .read(journalReminderProvider)
+          .setTime(hour: time.hour, minute: time.minute);
+      if (!allowed && mounted) {
+        journalMessage(
+          context,
+          'Waktu tersimpan. Aktifkan izin notifikasi agar pengingat dapat berjalan.',
+        );
+      }
+    });
+  }
+
+  Future<void> _backup() => _run('Menyiapkan cadangan beserta foto…', () async {
+    var missing = 0;
+    final file = await JournalBackupService().exportToFile(
+      familyName: ref.read(settingsProvider).familyName,
+      onMissingPhotos: (count) => missing = count,
+    );
+    if (!mounted) return;
+    if (missing > 0 &&
+        !await confirmJournalAction(
+          context,
+          title: '$missing foto tidak tersedia',
+          message:
+              'Foto lama yang sudah hilang tidak dapat disertakan. Semua cerita dan foto yang masih tersedia tetap dicadangkan.',
+          confirm: 'Lanjutkan ekspor',
+        )) {
+      return;
+    }
+    if (!mounted) return;
+    await SharePlus.instance.share(
+      ShareParams(files: [XFile(file.path)], subject: 'Cadangan Arunika'),
+    );
+  });
+  Future<void> _restore() async {
+    await _run('Membuka cadangan…', () async {
+      final file = await openFile(
+        acceptedTypeGroups: const [
+          XTypeGroup(
+            label: 'Cadangan Arunika',
+            extensions: ['json'],
+            mimeTypes: ['application/json'],
+          ),
+        ],
+      );
+      if (file == null || !mounted) return;
+      if (!await confirmJournalAction(
+        context,
+        title: 'Pulihkan cadangan?',
+        message:
+            'Berkas: ${file.name}\n\nCatatan baru akan digabungkan. Catatan dengan ID yang sama akan dilewati; data yang ada tidak ditimpa.',
+        confirm: 'Pulihkan',
+      )) {
+        return;
+      }
+      final wasEmpty =
+          (await ref.read(momentRepositoryProvider).getAll()).isEmpty &&
+          (await ref.read(familyMemberRepositoryProvider).getAll()).isEmpty;
+      final summary = await JournalBackupService().importFromFile(file.path);
+      ref.invalidate(familyMembersProvider);
+      ref.invalidate(ritualsProvider);
+      ref.invalidate(archivedRitualsProvider);
+      ref.invalidate(todayRitualsProvider);
+      ref.invalidate(todayCompletedRitualIdsProvider);
+      ref.invalidate(momentsProvider);
+      ref.invalidate(recapProvider);
+      var familyNameWarning = '';
+      if (wasEmpty && ref.read(settingsProvider).familyName == 'Keluarga') {
+        try {
+          await ref
+              .read(settingsProvider.notifier)
+              .update(
+                ref
+                    .read(settingsProvider)
+                    .copyWith(familyName: summary.familyName),
+              );
+        } catch (_) {
+          familyNameWarning =
+              ' Nama keluarga belum berubah; ubah dari Pengaturan.';
+        }
+      }
+      if (mounted) {
+        journalMessage(
+          context,
+          '${summary.totalAdded} catatan dipulihkan. ${summary.duplicatesSkipped} duplikat dilewati.${summary.missingPhotos > 0 ? ' ${summary.missingPhotos} foto tidak tersedia dalam cadangan.' : ''}$familyNameWarning',
+        );
+      }
+    });
+  }
+
+  Future<void> _scrapbook() => _run('Menyusun scrapbook…', () async {
+    final moments = await ref.read(momentRepositoryProvider).getAll();
+    final rituals = await ref.read(ritualRepositoryProvider).getAll();
+    if (moments.isEmpty && rituals.isEmpty) {
+      if (mounted) {
+        journalMessage(
+          context,
+          'Simpan satu momen atau kebiasaan sebelum membuat scrapbook.',
+        );
+      }
+      return;
+    }
+    final name = ref.read(settingsProvider).familyName;
+    var missingPhotos = 0;
+    final file = await ScrapbookPdf().export(
+      familyName: name,
+      moments: moments,
+      rituals: rituals,
+      onMissingPhotos: (count) => missingPhotos = count,
+    );
+    if (!mounted) return;
+    if (missingPhotos > 0 &&
+        !await confirmJournalAction(
+          context,
+          title: '$missingPhotos foto tidak tersedia',
+          message:
+              'Semua cerita tetap disertakan. Foto yang hilang ditandai dalam scrapbook.',
+          confirm: 'Lanjutkan ekspor',
+        )) {
+      return;
+    }
+    if (!mounted) return;
+    await SharePlus.instance.share(
+      ShareParams(files: [XFile(file.path)], subject: 'Scrapbook $name'),
+    );
+  });
+  @override
+  Widget build(BuildContext context) {
+    final s = ref.watch(settingsProvider);
+    final c = Theme.of(context).colorScheme;
+    return PopScope(
+      canPop: !_busy,
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Pengaturan')),
+        body: Stack(
+          children: [
+            AbsorbPointer(
+              absorbing: _busy,
+              child: JournalPage(
+                slivers: [
+                  JournalBlock(
+                    child: JournalHeader(
+                      title: 'Nyaman untuk kalian',
+                      subtitle:
+                          'Atur pengingat, simpan cadangan, dan kendalikan privasi keluarga.',
+                    ),
                   ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Pengaturan',
-                    style: AppTheme.serif(size: 25, weight: FontWeight.w600),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              EditorialCard(
-                gradient: AppColors.sunrise,
-                shadow: false,
-                onTap: () => _editFamilyName(context, ref, settings),
-                semanticLabel: 'Edit nama ruang keluarga',
-                child: Row(
-                  children: [
-                    Container(
-                      width: 56,
-                      height: 56,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.paper,
-                      ),
-                      child: const PhosphorIcon(
-                        PhosphorIconsLight.sun,
-                        size: 28,
-                        color: AppColors.goldDeep,
+                  JournalBlock(
+                    child: EditorialCard(
+                      shadow: false,
+                      padding: EdgeInsets.zero,
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.all(18),
+                        leading: CircleAvatar(
+                          backgroundColor: c.primaryContainer,
+                          child: Icon(
+                            Icons.home_outlined,
+                            color: c.onPrimaryContainer,
+                          ),
+                        ),
+                        title: Text(
+                          s.familyName,
+                          style: AppTheme.serif(size: 23),
+                        ),
+                        subtitle: const Text('Nama ruang keluarga'),
+                        trailing: const Icon(Icons.edit_outlined),
+                        onTap: _familyName,
                       ),
                     ),
-                    const SizedBox(width: 15),
-                    Expanded(
+                  ),
+                  JournalBlock(
+                    bottom: 12,
+                    child: const JournalSection(title: 'Pengingat harian'),
+                  ),
+                  JournalBlock(
+                    child: EditorialCard(
+                      shadow: false,
+                      padding: EdgeInsets.zero,
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'RUANG KALIAN',
-                            style: AppTheme.sans(
-                              size: 9.5,
-                              weight: FontWeight.w800,
-                              color: AppColors.espresso,
-                              letterSpacing: 1.4,
+                          SwitchListTile(
+                            value: s.journalReminderEnabled,
+                            onChanged: _reminder,
+                            secondary: const Icon(Icons.notifications_outlined),
+                            title: const Text('Luangkan satu menit'),
+                            subtitle: const Text(
+                              'Pengingat ringan untuk kebiasaan dan cerita hari ini.',
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            settings.familyName,
-                            style: AppTheme.serif(
-                              size: 22,
-                              weight: FontWeight.w600,
-                              color: AppColors.espresso,
+                          const Divider(),
+                          ListTile(
+                            leading: const Icon(Icons.schedule),
+                            title: const Text('Waktu pengingat'),
+                            subtitle: Text(
+                              '${TimeOfDay(hour: s.journalReminderHour, minute: s.journalReminderMinute).format(context)} · mengikuti zona waktu perangkat',
+                            ),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: _time,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  JournalBlock(
+                    bottom: 12,
+                    child: const JournalSection(title: 'Tampilan'),
+                  ),
+                  JournalBlock(
+                    child: EditorialCard(
+                      shadow: false,
+                      padding: EdgeInsets.zero,
+                      child: Column(
+                        children: [
+                          SwitchListTile(
+                            value: s.darkMode,
+                            onChanged: (v) => _run(
+                              'Menyimpan tampilan…',
+                              () => ref
+                                  .read(settingsProvider.notifier)
+                                  .update(
+                                    ref
+                                        .read(settingsProvider)
+                                        .copyWith(darkMode: v),
+                                  ),
+                            ),
+                            secondary: const Icon(Icons.dark_mode_outlined),
+                            title: const Text('Mode gelap'),
+                            subtitle: const Text(
+                              'Warna hangat untuk suasana malam.',
                             ),
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Ketuk untuk mengganti nama',
-                            style: AppTheme.sans(
-                              size: 10.5,
-                              color: AppColors.espresso.withValues(alpha: 0.68),
+                          const Divider(),
+                          SwitchListTile(
+                            value: s.reducedMotion,
+                            onChanged: (v) => _run(
+                              'Menyimpan tampilan…',
+                              () => ref
+                                  .read(settingsProvider.notifier)
+                                  .update(
+                                    ref
+                                        .read(settingsProvider)
+                                        .copyWith(reducedMotion: v),
+                                  ),
+                            ),
+                            secondary: const Icon(Icons.animation),
+                            title: const Text('Kurangi gerakan'),
+                            subtitle: const Text(
+                              'Batasi animasi dan transisi.',
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const PhosphorIcon(
-                      PhosphorIconsLight.pencilSimple,
-                      color: AppColors.espresso,
-                      size: 20,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-              const _SectionLabel('ORANG-ORANG DI SINI'),
-              const SizedBox(height: 10),
-              members.when(
-                loading: () => const Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Center(
-                    child: CircularProgressIndicator(strokeWidth: 2),
                   ),
-                ),
-                error: (_, _) => const EditorialCard(
-                  child: Text('Daftar anggota belum dapat dimuat.'),
-                ),
-                data: (items) => Column(
-                  children: [
-                    for (final member in items) ...[
-                      _MemberSettingRow(
-                        member: member,
-                        onTap: () => _editMember(context, member),
-                      ),
-                      const SizedBox(height: 8),
-                    ],
-                    _AddMemberRow(onTap: () => _editMember(context, null)),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-              const _SectionLabel('PRIVASI & KENYAMANAN'),
-              const SizedBox(height: 10),
-              EditorialCard(
-                padding: EdgeInsets.zero,
-                child: Column(
-                  children: [
-                    const ListTile(
-                      leading: PhosphorIcon(
-                        PhosphorIconsLight.lockKey,
-                        color: AppColors.sageDeep,
-                      ),
-                      title: Text('Lokal secara default'),
-                      subtitle: Text(
-                        'Cerita, ritual, dan foto tersimpan di perangkat ini.',
-                        style: TextStyle(height: 1.35),
-                      ),
-                    ),
-                    const Divider(height: 1),
-                    SwitchListTile.adaptive(
-                      value: settings.reducedMotion,
-                      onChanged: (value) => ref
-                          .read(settingsProvider.notifier)
-                          .update(settings.copyWith(reducedMotion: value)),
-                      secondary: const PhosphorIcon(
-                        PhosphorIconsLight.waveSine,
-                        color: AppColors.sageDeep,
-                      ),
-                      title: const Text('Kurangi gerakan'),
-                      subtitle: const Text(
-                        'Gunakan transisi yang lebih tenang.',
-                        style: TextStyle(height: 1.35),
-                      ),
-                    ),
-                    const Divider(height: 1),
-                    SwitchListTile.adaptive(
-                      value: settings.darkMode,
-                      onChanged: (value) => ref
-                          .read(settingsProvider.notifier)
-                          .update(settings.copyWith(darkMode: value)),
-                      secondary: const Icon(Icons.dark_mode_outlined),
-                      title: const Text('Mode gelap'),
-                      subtitle: const Text(
-                        'Gunakan palet malam Arunika yang lebih nyaman.',
-                        style: TextStyle(height: 1.35),
-                      ),
-                    ),
-                    const Divider(height: 1),
-                    ListTile(
-                      leading: const PhosphorIcon(
-                        PhosphorIconsLight.export,
-                        color: AppColors.sageDeep,
-                      ),
-                      title: const Text('Ekspor scrapbook'),
-                      subtitle: const Text(
-                        'Bawa cerita kalian menjadi PDF.',
-                        style: TextStyle(height: 1.35),
-                      ),
-                      trailing: const PhosphorIcon(
-                        PhosphorIconsLight.caretRight,
-                        size: 18,
-                      ),
-                      onTap: () =>
-                          _exportScrapbook(context, ref, settings.familyName),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-              const _SectionLabel('DUKUNG ARUNIKA'),
-              const SizedBox(height: 10),
-              const RemoveAdsCard(),
-              const SizedBox(height: 6),
-              TextButton.icon(
-                onPressed: () => ref
-                    .read(monetizationProvider.notifier)
-                    .showPrivacyOptions(),
-                icon: const PhosphorIcon(
-                  PhosphorIconsLight.slidersHorizontal,
-                  size: 18,
-                ),
-                label: const Text('Kelola opsi privasi iklan'),
-              ),
-              const SizedBox(height: 20),
-              const _SectionLabel('TENTANG'),
-              const SizedBox(height: 10),
-              EditorialCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: AppColors.sunrise,
+                  JournalBlock(
+                    bottom: 12,
+                    child: const JournalSection(title: 'Catatan & cadangan'),
+                  ),
+                  JournalBlock(
+                    child: EditorialCard(
+                      shadow: false,
+                      padding: EdgeInsets.zero,
+                      child: Column(
+                        children: [
+                          _SettingRow(
+                            icon: Icons.save_alt,
+                            title: 'Buat cadangan',
+                            subtitle:
+                                'Anggota, kebiasaan, riwayat, cerita, dan foto.',
+                            onTap: _backup,
                           ),
-                          child: const PhosphorIcon(
-                            PhosphorIconsLight.sun,
-                            color: AppColors.espresso,
-                            size: 24,
+                          const Divider(),
+                          _SettingRow(
+                            icon: Icons.settings_backup_restore,
+                            title: 'Pulihkan cadangan',
+                            subtitle:
+                                'Gabungkan berkas cadangan dari perangkat lain.',
+                            onTap: _restore,
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              AppIdentity.fullName,
-                              style: TextStyle(
-                                fontFamily: 'Fraunces',
-                                fontSize: 17,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.ink,
+                          const Divider(),
+                          _SettingRow(
+                            icon: Icons.picture_as_pdf_outlined,
+                            title: 'Ekspor scrapbook PDF',
+                            subtitle:
+                                'Cerita dan foto untuk dibaca atau dicetak.',
+                            onTap: _scrapbook,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  JournalBlock(
+                    child: Text(
+                      'Catatan inti tersimpan di perangkat, tanpa akun. Buat cadangan sebelum mengganti ponsel atau menghapus aplikasi. Berkas cadangan berisi data pribadi dan tidak dienkripsi; simpan di tempat yang kamu percaya.',
+                      style: TextStyle(
+                        color: c.onSurfaceVariant,
+                        height: 1.6,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                  JournalBlock(
+                    bottom: 12,
+                    child: const JournalSection(title: 'Dukung Arunika'),
+                  ),
+                  const JournalBlock(child: RemoveAdsCard()),
+                  JournalBlock(
+                    bottom: 12,
+                    child: const JournalSection(title: 'Privasi & bantuan'),
+                  ),
+                  JournalBlock(
+                    child: EditorialCard(
+                      shadow: false,
+                      padding: EdgeInsets.zero,
+                      child: Column(
+                        children: [
+                          _SettingRow(
+                            icon: Icons.privacy_tip_outlined,
+                            title: 'Kebijakan privasi',
+                            subtitle:
+                                'Penyimpanan, iklan, pembelian, dan pilihanmu.',
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) => const PrivacyScreen(),
                               ),
                             ),
-                            Text(
-                              'Versi ${AppIdentity.version}',
-                              style: TextStyle(
-                                fontFamily: 'PlusJakartaSans',
-                                fontSize: 11,
-                                color: AppColors.inkFaint,
+                          ),
+                          const Divider(),
+                          _SettingRow(
+                            icon: Icons.tune,
+                            title: 'Pilihan privasi iklan',
+                            subtitle:
+                                'Kelola pilihan yang tersedia melalui Google.',
+                            onTap: () => _run(
+                              'Membuka pilihan privasi…',
+                              () async {
+                                try {
+                                  await ref
+                                      .read(monetizationProvider.notifier)
+                                      .showPrivacyOptions();
+                                } catch (_) {
+                                  if (context.mounted) {
+                                    journalMessage(
+                                      context,
+                                      'Pilihan privasi belum dapat dibuka. Periksa koneksi, lalu coba lagi.',
+                                    );
+                                  }
+                                }
+                              },
+                            ),
+                          ),
+                          const Divider(),
+                          _SettingRow(
+                            icon: Icons.help_outline,
+                            title: 'Panduan & bantuan',
+                            subtitle:
+                                'Cara memakai Arunika dan menghubungi dukungan.',
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) => const HelpScreen(),
                               ),
                             ),
-                          ],
+                          ),
+                          const Divider(),
+                          _SettingRow(
+                            icon: Icons.info_outline,
+                            title: 'Lisensi aplikasi',
+                            subtitle:
+                                'Perangkat lunak yang membantu Arunika berjalan.',
+                            onTap: () => showLicensePage(
+                              context: context,
+                              applicationName: AppIdentity.fullName,
+                              applicationVersion: AppIdentity.version,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  JournalBlock(
+                    child: Center(
+                      child: Text(
+                        '${AppIdentity.fullName}\nVersi ${AppIdentity.version}',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: c.onSurfaceVariant,
+                          height: 1.7,
+                          fontSize: 12,
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Arunika dibuat untuk keluarga yang ingin mengingat proses, bukan mengejar kesempurnaan.',
-                      style: AppTheme.sans(
-                        size: 12,
-                        color: AppColors.inkSoft,
-                        height: 1.55,
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Kebijakan privasi tersedia dari halaman Play Store dan menjelaskan penyimpanan lokal, lampiran foto, iklan, serta pembelian.',
-                      style: AppTheme.sans(
-                        size: 11,
-                        color: AppColors.inkFaint,
-                        height: 1.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _editFamilyName(
-    BuildContext context,
-    WidgetRef ref,
-    AppSettings settings,
-  ) async {
-    final controller = TextEditingController(text: settings.familyName);
-    final value = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Nama ruang keluarga'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(hintText: 'Contoh: Rumah Arunika'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Batal'),
-          ),
-          FilledButton(
-            onPressed: () =>
-                Navigator.pop(dialogContext, controller.text.trim()),
-            child: const Text('Simpan'),
-          ),
-        ],
-      ),
-    );
-    controller.dispose();
-    if (value != null && value.isNotEmpty) {
-      await ref
-          .read(settingsProvider.notifier)
-          .update(settings.copyWith(familyName: value));
-    }
-  }
-
-  Future<void> _editMember(BuildContext context, FamilyMember? member) async {
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => FamilyMemberEditorSheet(initial: member),
-    );
-  }
-
-  Future<void> _exportScrapbook(
-    BuildContext context,
-    WidgetRef ref,
-    String familyName,
-  ) async {
-    try {
-      final moments = await ref.read(momentsProvider.future);
-      final rituals = await ref.read(ritualsProvider.future);
-      final file = await ScrapbookPdf().export(
-        familyName: familyName,
-        moments: moments,
-        rituals: rituals,
-      );
-      await SharePlus.instance.share(
-        ShareParams(
-          files: [XFile(file.path)],
-          subject: 'Scrapbook $familyName — Arunika',
-        ),
-      );
-    } catch (error) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Scrapbook belum dapat dibuat: $error')),
-        );
-      }
-    }
-  }
-}
-
-class _SectionLabel extends StatelessWidget {
-  const _SectionLabel(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Text(
-    text,
-    style: AppTheme.sans(
-      size: 10,
-      weight: FontWeight.w800,
-      color: AppColors.terracottaDeep,
-      letterSpacing: 1.5,
-    ),
-  );
-}
-
-class _MemberSettingRow extends StatelessWidget {
-  const _MemberSettingRow({required this.member, required this.onTap});
-
-  final FamilyMember member;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => EditorialCard(
-    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-    onTap: onTap,
-    semanticLabel: 'Edit anggota ${member.name}',
-    child: Row(
-      children: [
-        Container(
-          width: 38,
-          height: 38,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            color: AppColors.goldMist,
-          ),
-          child: Center(
-            child: Text(
-              member.name.characters.first.toUpperCase(),
-              style: AppTheme.serif(
-                size: 16,
-                weight: FontWeight.w600,
-                color: AppColors.goldDeep,
+                  ),
+                ],
               ),
             ),
-          ),
-        ),
-        const SizedBox(width: 11),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                member.name,
-                style: AppTheme.sans(size: 13, weight: FontWeight.w800),
+            if (_busy)
+              Positioned.fill(
+                child: ColoredBox(
+                  color: c.scrim.withValues(alpha: .35),
+                  child: Center(
+                    child: Card(
+                      margin: const EdgeInsets.all(28),
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const CircularProgressIndicator(),
+                            const SizedBox(height: 20),
+                            Text(_activity, textAlign: TextAlign.center),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
-              Text(
-                member.roleLabel,
-                style: AppTheme.sans(size: 10.5, color: AppColors.inkFaint),
-              ),
-            ],
-          ),
+          ],
         ),
-        const PhosphorIcon(
-          PhosphorIconsLight.pencilSimple,
-          size: 18,
-          color: AppColors.inkFaint,
-        ),
-      ],
-    ),
+      ),
+    );
+  }
+}
+
+class _SettingRow extends StatelessWidget {
+  const _SettingRow({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) => ListTile(
+    contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+    leading: Icon(icon),
+    title: Text(title),
+    subtitle: Text(subtitle, style: const TextStyle(height: 1.5)),
+    trailing: const Icon(Icons.chevron_right),
+    onTap: onTap,
   );
 }
 
-class _AddMemberRow extends StatelessWidget {
-  const _AddMemberRow({required this.onTap});
+class _FamilyNameDialog extends StatefulWidget {
+  const _FamilyNameDialog({required this.initial});
+  final String initial;
+  @override
+  State<_FamilyNameDialog> createState() => _FamilyNameDialogState();
+}
 
-  final VoidCallback onTap;
+class _FamilyNameDialogState extends State<_FamilyNameDialog> {
+  late final _controller = TextEditingController(text: widget.initial);
+  final _form = GlobalKey<FormState>();
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
-  Widget build(BuildContext context) => EditorialCard(
-    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-    color: AppColors.sageMist,
-    shadow: false,
-    onTap: onTap,
-    semanticLabel: 'Tambah anggota keluarga',
-    child: Row(
-      children: [
-        const PhosphorIcon(
-          PhosphorIconsLight.plusCircle,
-          color: AppColors.sageDeep,
-        ),
-        const SizedBox(width: 11),
-        Text(
-          'Tambah orang yang ingin dirayakan',
-          style: AppTheme.sans(
-            size: 12.5,
-            weight: FontWeight.w800,
-            color: AppColors.sageDeep,
-          ),
-        ),
-      ],
+  Widget build(BuildContext context) => AlertDialog(
+    title: const Text('Nama ruang keluarga'),
+    content: Form(
+      key: _form,
+      child: TextFormField(
+        controller: _controller,
+        maxLength: 60,
+        autofocus: true,
+        textCapitalization: TextCapitalization.words,
+        validator: (v) =>
+            v == null || v.trim().isEmpty ? 'Masukkan nama keluarga.' : null,
+        decoration: const InputDecoration(labelText: 'Nama keluarga'),
+      ),
     ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: const Text('Batal'),
+      ),
+      FilledButton(
+        onPressed: () {
+          if (_form.currentState!.validate()) {
+            Navigator.pop(context, _controller.text.trim());
+          }
+        },
+        child: const Text('Simpan'),
+      ),
+    ],
   );
 }

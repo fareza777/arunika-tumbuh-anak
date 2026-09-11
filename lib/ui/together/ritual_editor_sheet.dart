@@ -1,39 +1,56 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_theme.dart';
 import '../../data/models/ritual.dart';
-import '../../state/monetization_provider.dart';
 import '../../state/together_providers.dart';
+import '../widgets/editor_guard.dart';
 
 class RitualEditorSheet extends ConsumerStatefulWidget {
   const RitualEditorSheet({super.key, this.initial});
-
   final Ritual? initial;
-
   @override
   ConsumerState<RitualEditorSheet> createState() => _RitualEditorSheetState();
 }
 
 class _RitualEditorSheetState extends ConsumerState<RitualEditorSheet> {
+  final _guardKey = GlobalKey<EditorGuardState>();
+  final _formKey = GlobalKey<FormState>();
+  final _errorKey = GlobalKey();
+  final _daysKey = GlobalKey();
+  late final String _id;
+  late final int _createdAt;
   late final TextEditingController _titleController;
   late final TextEditingController _descriptionController;
   late RitualTimeOfDay _timeOfDay;
   late Set<int> _repeatDays;
   late String _accentKey;
   var _saving = false;
+  var _submitted = false;
+  String? _error;
+
+  bool get _dirty =>
+      _titleController.text != (widget.initial?.title ?? '') ||
+      _descriptionController.text != (widget.initial?.description ?? '') ||
+      _timeOfDay != (widget.initial?.timeOfDay ?? RitualTimeOfDay.anytime) ||
+      !setEquals(
+        _repeatDays,
+        widget.initial?.repeatDays ?? const {1, 2, 3, 4, 5, 6, 7},
+      ) ||
+      _accentKey != (widget.initial?.accentKey ?? 'sage');
 
   @override
   void initState() {
     super.initState();
     final initial = widget.initial;
-    _titleController = TextEditingController(text: initial?.title ?? '');
+    _id = initial?.id ?? const Uuid().v4();
+    _createdAt = initial?.createdAt ?? DateTime.now().millisecondsSinceEpoch;
+    _titleController = TextEditingController(text: initial?.title ?? '')
+      ..addListener(_changed);
     _descriptionController = TextEditingController(
       text: initial?.description ?? '',
-    );
+    )..addListener(_changed);
     _timeOfDay = initial?.timeOfDay ?? RitualTimeOfDay.anytime;
     _repeatDays = {
       ...(initial?.repeatDays ?? const {1, 2, 3, 4, 5, 6, 7}),
@@ -41,33 +58,94 @@ class _RitualEditorSheetState extends ConsumerState<RitualEditorSheet> {
     _accentKey = initial?.accentKey ?? 'sage';
   }
 
+  void _changed() => setState(() {});
+
+  void _reveal(GlobalKey key) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && key.currentContext != null) {
+        Scrollable.ensureVisible(key.currentContext!);
+      }
+    });
+  }
+
   Future<void> _save() async {
-    final title = _titleController.text.trim();
-    if (title.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Beri ritual ini sebuah nama dulu.')),
-      );
+    if (_saving) return;
+    setState(() => _submitted = true);
+    if (!_formKey.currentState!.validate()) {
+      _reveal(_formKey);
       return;
     }
-    setState(() => _saving = true);
-    final old = widget.initial;
+    if (_repeatDays.isEmpty) {
+      _reveal(_daysKey);
+      return;
+    }
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+    final description = _descriptionController.text.trim();
     final ritual = Ritual(
-      id: old?.id ?? const Uuid().v4(),
-      title: title,
-      description: _descriptionController.text.trim().isEmpty
-          ? null
-          : _descriptionController.text.trim(),
+      id: _id,
+      title: _titleController.text.trim(),
+      description: description.isEmpty ? null : description,
       timeOfDay: _timeOfDay,
-      repeatDays: _repeatDays,
+      repeatDays: {..._repeatDays},
       accentKey: _accentKey,
-      createdAt: old?.createdAt ?? DateTime.now().millisecondsSinceEpoch,
+      isArchived: widget.initial?.isArchived ?? false,
+      createdAt: _createdAt,
     );
-    await ref.read(togetherActionsProvider).saveRitual(ritual);
-    if (!mounted) return;
-    Navigator.of(context).pop();
-    final monetization = ref.read(monetizationProvider.notifier);
-    monetization.onMeaningfulSave();
-    await monetization.maybeShowInterstitial();
+    try {
+      await ref.read(togetherActionsProvider).saveRitual(ritual);
+      if (mounted) _guardKey.currentState?.closeAfterSave();
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => _error =
+              'Belum berhasil menyimpan ritual. Isian tetap ada; coba simpan lagi.',
+        );
+        _reveal(_errorKey);
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  Future<void> _changeArchive() async {
+    final initial = widget.initial;
+    if (_saving || initial == null) return;
+    final restoring = initial.isArchived;
+    final confirmed = await confirmEditorAction(
+      context,
+      title: restoring ? 'Aktifkan ritual kembali?' : 'Arsipkan ritual ini?',
+      message:
+          '${restoring ? 'Ritual akan muncul lagi sesuai hari yang dijadwalkan.' : 'Ritual akan disimpan di arsip. Riwayat kegiatan tetap ada dan ritual bisa diaktifkan kembali.'}${_dirty ? ' Perubahan yang belum disimpan akan dibuang.' : ''}',
+      confirmLabel: restoring ? 'Aktifkan' : 'Arsipkan',
+    );
+    if (!confirmed || !mounted || _saving) return;
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+    try {
+      final actions = ref.read(togetherActionsProvider);
+      if (restoring) {
+        await actions.saveRitual(initial.copyWith(isArchived: false));
+      } else {
+        await actions.archiveRitual(initial.id);
+      }
+      if (mounted) _guardKey.currentState?.closeAfterSave();
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => _error = restoring
+              ? 'Belum berhasil mengaktifkan ritual. Coba lagi.'
+              : 'Belum berhasil mengarsipkan ritual. Coba lagi.',
+        );
+        _reveal(_errorKey);
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
 
   @override
@@ -79,248 +157,210 @@ class _RitualEditorSheetState extends ConsumerState<RitualEditorSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final bottom = MediaQuery.viewInsetsOf(context).bottom;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(20, 14, 20, bottom + 20),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 42,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.hairline,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-            ),
-            const SizedBox(height: 22),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    widget.initial == null ? 'Buat ritual baru' : 'Edit ritual',
-                    style: AppTheme.serif(size: 25, weight: FontWeight.w600),
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  tooltip: 'Tutup',
-                  icon: const PhosphorIcon(PhosphorIconsLight.x),
-                ),
-              ],
-            ),
-            const SizedBox(height: 18),
-            TextField(
-              controller: _titleController,
-              textCapitalization: TextCapitalization.sentences,
-              autofocus: widget.initial == null,
-              decoration: const InputDecoration(
-                labelText: 'Nama ritual',
-                hintText: 'Contoh: Jalan sore tanpa layar',
-                prefixIcon: PhosphorIcon(PhosphorIconsLight.sparkle),
-              ),
-            ),
-            const SizedBox(height: 13),
-            TextField(
-              controller: _descriptionController,
-              textCapitalization: TextCapitalization.sentences,
-              maxLines: 2,
-              decoration: const InputDecoration(
-                labelText: 'Kalimat pengingat (opsional)',
-                hintText: 'Apa yang ingin terasa di momen ini?',
-              ),
-            ),
-            const SizedBox(height: 22),
-            const Text(
-              'WAKTU YANG TERASA PAS',
-              style: TextStyle(
-                fontFamily: 'PlusJakartaSans',
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                color: AppColors.sageDeep,
-                letterSpacing: 1.4,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (final time in RitualTimeOfDay.values)
-                  ChoiceChip(
-                    label: Text(time.label),
-                    selected: _timeOfDay == time,
-                    onSelected: (_) => setState(() => _timeOfDay = time),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 22),
-            const Text(
-              'HARI BERULANG',
-              style: TextStyle(
-                fontFamily: 'PlusJakartaSans',
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                color: AppColors.sageDeep,
-                letterSpacing: 1.4,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 7,
-              children: [
-                for (var day = 1; day <= 7; day++)
-                  _DayChoice(
-                    day: day,
-                    selected: _repeatDays.contains(day),
-                    onTap: () => setState(() => _toggleDay(day)),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 22),
-            const Text(
-              'NUANSA',
-              style: TextStyle(
-                fontFamily: 'PlusJakartaSans',
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                color: AppColors.sageDeep,
-                letterSpacing: 1.4,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                for (final item in const [
-                  ('sage', AppColors.sageDeep),
-                  ('terracotta', AppColors.terracottaDeep),
-                  ('gold', AppColors.goldDeep),
-                ])
-                  _AccentChoice(
-                    key: ValueKey(item.$1),
-                    color: item.$2,
-                    selected: _accentKey == item.$1,
-                    onTap: () => setState(() => _accentKey = item.$1),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 28),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: _saving ? null : _save,
-                icon: const PhosphorIcon(PhosphorIconsLight.check),
-                label: Text(_saving ? 'Menyimpan…' : 'Simpan ritual'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _toggleDay(int day) {
-    if (_repeatDays.length == 1 && _repeatDays.contains(day)) return;
-    if (_repeatDays.contains(day)) {
-      _repeatDays.remove(day);
-    } else {
-      _repeatDays.add(day);
-    }
-  }
-}
-
-class _DayChoice extends StatelessWidget {
-  const _DayChoice({
-    required this.day,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final int day;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    const labels = ['S', 'S', 'R', 'K', 'J', 'S', 'M'];
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: 'Hari ke $day',
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          width: 39,
-          height: 39,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: selected ? AppColors.sageDeep : AppColors.paper,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: selected ? AppColors.sageDeep : AppColors.hairline,
-            ),
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    const days = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+    const fullDays = [
+      'Senin',
+      'Selasa',
+      'Rabu',
+      'Kamis',
+      'Jumat',
+      'Sabtu',
+      'Minggu',
+    ];
+    final accents = [
+      ('sage', 'Daun', colors.secondary),
+      ('terracotta', 'Senja', colors.primary),
+      ('gold', 'Madu', colors.tertiary),
+    ];
+    return EditorGuard(
+      key: _guardKey,
+      isDirty: () => _dirty,
+      isBusy: () => _saving,
+      child: EditorSheetFrame(
+        title: widget.initial == null ? 'Buat ritual baru' : 'Edit ritual',
+        onClose: _saving ? null : () => _guardKey.currentState?.requestClose(),
+        saveButton: FilledButton.icon(
+          onPressed: _saving ? null : _save,
+          style: FilledButton.styleFrom(
+            minimumSize: const Size(double.infinity, 48),
           ),
-          child: Text(
-            labels[day - 1],
-            style: AppTheme.sans(
-              size: 12,
-              weight: FontWeight.w800,
-              color: selected ? Colors.white : AppColors.inkSoft,
-            ),
+          icon: Icon(
+            _saving ? Icons.hourglass_top_rounded : Icons.check_rounded,
           ),
+          label: Text(_saving ? 'Menyimpan…' : 'Simpan ritual'),
         ),
-      ),
-    );
-  }
-}
-
-class _AccentChoice extends StatelessWidget {
-  const _AccentChoice({
-    super.key,
-    required this.color,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final Color color;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 12),
-      child: Semantics(
-        button: true,
-        selected: selected,
-        label: 'Pilih warna ritual',
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(20),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: color.withValues(alpha: 0.18),
-              border: Border.all(
-                color: selected ? color : color.withValues(alpha: 0.35),
-                width: selected ? 3 : 1,
+        child: Form(
+          key: _formKey,
+          autovalidateMode: _submitted
+              ? AutovalidateMode.onUserInteraction
+              : AutovalidateMode.disabled,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (_error != null) ...[
+                EditorError(key: _errorKey, message: _error!),
+                const SizedBox(height: 16),
+              ],
+              Text(
+                widget.initial?.isArchived == true
+                    ? 'Ritual ini ada di arsip. Menyimpan perubahan tidak akan mengaktifkannya.'
+                    : 'Mulai dari kebiasaan kecil yang ingin dilakukan bersama.',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: colors.onSurfaceVariant,
+                ),
               ),
-            ),
-            child: Center(
-              child: Container(
-                width: 18,
-                height: 18,
-                decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _titleController,
+                enabled: !_saving,
+                textCapitalization: TextCapitalization.sentences,
+                textInputAction: TextInputAction.next,
+                maxLength: 80,
+                decoration: const InputDecoration(
+                  labelText: 'Nama ritual',
+                  hintText: 'Contoh: Cerita sebelum tidur',
+                  prefixIcon: Icon(Icons.auto_awesome_outlined),
+                  errorMaxLines: 3,
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Beri nama untuk ritual ini.';
+                  }
+                  if (value.characters.length > 80) {
+                    return 'Nama ritual paling panjang 80 karakter.';
+                  }
+                  return null;
+                },
               ),
-            ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _descriptionController,
+                enabled: !_saving,
+                textCapitalization: TextCapitalization.sentences,
+                minLines: 2,
+                maxLines: 4,
+                maxLength: 500,
+                decoration: const InputDecoration(
+                  labelText: 'Pengingat (opsional)',
+                  hintText: 'Satu cerita, satu pelukan, tanpa buru-buru.',
+                  errorMaxLines: 3,
+                ),
+                validator: (value) =>
+                    value != null && value.characters.length > 500
+                    ? 'Pengingat paling panjang 500 karakter.'
+                    : null,
+              ),
+              const SizedBox(height: 22),
+              Text('Waktu bersama', style: theme.textTheme.titleMedium),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final time in RitualTimeOfDay.values)
+                    ChoiceChip(
+                      label: Text(time.label),
+                      selected: _timeOfDay == time,
+                      materialTapTargetSize: MaterialTapTargetSize.padded,
+                      onSelected: _saving
+                          ? null
+                          : (_) => setState(() => _timeOfDay = time),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 22),
+              Text(
+                'Hari berulang',
+                key: _daysKey,
+                style: theme.textTheme.titleMedium,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Pilih hari ritual muncul di halaman Hari ini.',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (var day = 1; day <= 7; day++)
+                    FilterChip(
+                      label: Text(days[day - 1]),
+                      tooltip: fullDays[day - 1],
+                      selected: _repeatDays.contains(day),
+                      showCheckmark: false,
+                      materialTapTargetSize: MaterialTapTargetSize.padded,
+                      onSelected: _saving
+                          ? null
+                          : (selected) => setState(() {
+                              if (selected) {
+                                _repeatDays.add(day);
+                              } else {
+                                _repeatDays.remove(day);
+                              }
+                            }),
+                    ),
+                ],
+              ),
+              if (_submitted && _repeatDays.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Semantics(
+                    liveRegion: true,
+                    child: Text(
+                      'Pilih sedikitnya satu hari.',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colors.error,
+                      ),
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 22),
+              Text('Nuansa', style: theme.textTheme.titleMedium),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final accent in accents)
+                    ChoiceChip(
+                      avatar: Icon(Icons.circle, size: 16, color: accent.$3),
+                      label: Text(accent.$2),
+                      selected: _accentKey == accent.$1,
+                      materialTapTargetSize: MaterialTapTargetSize.padded,
+                      onSelected: _saving
+                          ? null
+                          : (_) => setState(() => _accentKey = accent.$1),
+                    ),
+                  if (!accents.any((accent) => accent.$1 == _accentKey))
+                    const Chip(label: Text('Nuansa tersimpan')),
+                ],
+              ),
+              if (widget.initial != null) ...[
+                const SizedBox(height: 24),
+                OutlinedButton.icon(
+                  onPressed: _saving ? null : _changeArchive,
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 48),
+                  ),
+                  icon: Icon(
+                    widget.initial!.isArchived
+                        ? Icons.unarchive_outlined
+                        : Icons.archive_outlined,
+                  ),
+                  label: Text(
+                    widget.initial!.isArchived
+                        ? 'Aktifkan kembali'
+                        : 'Arsipkan ritual',
+                  ),
+                ),
+              ],
+            ],
           ),
         ),
       ),

@@ -10,38 +10,43 @@ import 'product_selector.dart';
 
 /// The concrete bridge to Google Mobile Ads and Google Play Billing.
 class MonetizationService implements MonetizationGateway {
-  MonetizationService({MonetizationConfig? config})
-    : _config = config ?? MonetizationConfig.fromEnvironment();
+  MonetizationService({MonetizationConfig? config, InAppPurchase? store})
+    : _config = config ?? MonetizationConfig.fromEnvironment(),
+      _store = store ?? InAppPurchase.instance;
 
   final MonetizationConfig _config;
-  final InAppPurchase _store = InAppPurchase.instance;
+  final InAppPurchase _store;
   final _updates = StreamController<PurchaseUpdate>.broadcast();
   final _products = <String, ProductDetails>{};
   StreamSubscription<List<PurchaseDetails>>? _purchaseSubscription;
   var _initialized = false;
+  var _disposed = false;
 
   @override
   Stream<PurchaseUpdate> get purchaseUpdates => _updates.stream;
 
   @override
   Future<void> initialize() async {
-    if (_initialized) return;
+    if (_initialized || _disposed) return;
     _initialized = true;
 
-    if ((!_config.isRelease || _config.isValidForRelease) &&
+    if (_config.hasAnyAdConfiguration &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS)) {
       // Consent must be resolved before the first ad request. If the UMP
       // service is unavailable or the user has not completed the required
       // choice, the banner slot remains visible but no ad request is made.
       if (await _prepareAdConsent()) {
+        if (_disposed) return;
         await MobileAds.instance.initialize();
       }
     }
 
+    if (_disposed) return;
     _purchaseSubscription = _store.purchaseStream.listen(
       (purchases) => unawaited(_handlePurchases(purchases)),
       onError: (Object error) {
+        if (_disposed) return;
         _updates.add(
           PurchaseUpdate(
             productId: _config.productId,
@@ -90,9 +95,14 @@ class MonetizationService implements MonetizationGateway {
         'Produk ${_config.productId} belum tersedia di Play Store.',
       );
     }
-    await _store.buyNonConsumable(
+    final launched = await _store.buyNonConsumable(
       purchaseParam: PurchaseParam(productDetails: product),
     );
+    if (!launched) {
+      throw StateError(
+        'Google Play belum dapat membuka pembayaran. Coba lagi.',
+      );
+    }
   }
 
   @override
@@ -117,6 +127,7 @@ class MonetizationService implements MonetizationGateway {
 
   Future<void> _handlePurchases(List<PurchaseDetails> purchases) async {
     for (final purchase in purchases) {
+      if (_disposed) return;
       final status = switch (purchase.status) {
         PurchaseStatus.pending => PurchaseUpdateStatus.pending,
         PurchaseStatus.purchased => PurchaseUpdateStatus.purchased,
@@ -192,6 +203,8 @@ class MonetizationService implements MonetizationGateway {
 
   @override
   Future<void> dispose() async {
+    if (_disposed) return;
+    _disposed = true;
     await _purchaseSubscription?.cancel();
     await _updates.close();
   }

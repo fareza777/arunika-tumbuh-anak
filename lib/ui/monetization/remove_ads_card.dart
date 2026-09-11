@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_theme.dart';
-import '../../core/widgets/gold_button.dart';
-import '../../core/widgets/luxe_card.dart';
 import '../../state/monetization_provider.dart';
 
 class RemoveAdsCard extends ConsumerWidget {
@@ -14,156 +10,137 @@ class RemoveAdsCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(monetizationProvider);
     final controller = ref.read(monetizationProvider.notifier);
-
-    if (state.adsRemoved) {
-      return LuxeCard(
-        borderColor: AppColors.good.withValues(alpha: 0.5),
-        color: AppColors.goodSoft,
-        child: Row(
-          children: [
-            const Icon(Icons.verified_rounded, color: AppColors.good, size: 28),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Bebas Iklan Aktif',
-                    style: AppTheme.sans(size: 14, weight: FontWeight.w800),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    'Terima kasih telah mendukung Arunika.',
-                    style: AppTheme.sans(size: 11.5, color: AppColors.inkSoft),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    final isBusy = state.isVerifying;
-    final price = state.productPrice ?? 'US\$4.99';
-    final statusMessage =
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final price = state.productPrice;
+    final canPurchase =
+        state.storeAvailable && price != null && price.trim().isNotEmpty;
+    final status =
         state.message ??
         (state.isVerifying
-            ? 'Menghubungkan ke Google Play…'
-            : state.storeAvailable
-            ? 'Pembayaran sekali · tanpa langganan'
-            : 'Buka dari Google Play untuk melanjutkan.');
-    return LuxeCard(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 13),
-      gradient: const LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [Color(0xFFFFFFFF), Color(0xFFFBF4E2)],
-      ),
-      borderColor: AppColors.goldSoft,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const IconTile(
-                icon: Icons.auto_awesome_rounded,
-                color: AppColors.gold,
-                size: 44,
-                iconSize: 21,
-                radius: 14,
+            ? 'Memeriksa pembelian dan harga di Google Play…'
+            : canPurchase
+            ? 'Pembayaran sekali, tanpa langganan.'
+            : 'Harga belum tersedia. Hubungkan ke Google Play untuk memuatnya.');
+
+    return Card(
+      color: colors.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ExcludeSemantics(
+                  child: Icon(
+                    state.adsRemoved
+                        ? Icons.verified_outlined
+                        : Icons.hide_source_rounded,
+                    color: state.adsRemoved ? colors.secondary : colors.primary,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    state.adsRemoved ? 'Bebas Iklan Aktif' : 'Bebas Iklan',
+                    style: theme.textTheme.headlineSmall,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              state.adsRemoved
+                  ? 'Terima kasih telah mendukung Arunika. Nikmati jurnal keluarga tanpa iklan.'
+                  : 'Satu kali bayar untuk menghapus iklan. Jurnal, kebiasaan, dan kenangan tetap gratis.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colors.onSurfaceVariant,
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Bebas Iklan',
-                      style: AppTheme.serif(size: 17, weight: FontWeight.w600),
+            ),
+            if (!state.adsRemoved) ...[
+              const SizedBox(height: 16),
+              const _Benefit(
+                icon: Icons.hide_source_rounded,
+                label: 'Tanpa semua jenis iklan',
+              ),
+              const _Benefit(
+                icon: Icons.payments_outlined,
+                label: 'Sekali bayar',
+              ),
+              const _Benefit(
+                icon: Icons.restore_rounded,
+                label: 'Pulihkan kapan saja',
+              ),
+              const SizedBox(height: 12),
+              Semantics(
+                liveRegion: true,
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: colors.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    status,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colors.onSurfaceVariant,
                     ),
-                    const SizedBox(height: 3),
-                    Text(
-                      'Satu kali bayar untuk ruang keluarga yang lebih tenang.',
-                      style: AppTheme.sans(
-                        size: 11.5,
-                        color: AppColors.inkSoft,
-                        height: 1.4,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppColors.goldMist,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.goldSoft),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(48, 52),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                  ),
+                  onPressed: state.isVerifying
+                      ? null
+                      : canPurchase
+                      ? controller.buyRemoveAds
+                      : controller.reconnectStore,
+                  child: Text(
+                    state.isVerifying
+                        ? 'Memproses…'
+                        : canPurchase
+                        ? 'Beli sekali · $price'
+                        : 'Hubungkan ke Google Play',
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-                child: Text(
-                  price,
-                  style: AppTheme.sans(
-                    size: 11,
-                    weight: FontWeight.w800,
-                    color: AppColors.goldDeep,
+              ),
+              const SizedBox(height: 4),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    minimumSize: const Size(48, 48),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                  ),
+                  onPressed: state.isVerifying
+                      ? null
+                      : controller.restorePurchases,
+                  child: const Text(
+                    'Pulihkan pembelian',
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: const [
-              Expanded(
-                child: _Benefit(
-                  icon: Icons.hide_source_rounded,
-                  label: 'Tanpa banner',
-                ),
-              ),
-              SizedBox(width: 8),
-              Expanded(
-                child: _Benefit(
-                  icon: Icons.payments_outlined,
-                  label: 'Sekali bayar',
-                ),
-              ),
-              SizedBox(width: 8),
-              Expanded(
-                child: _Benefit(
-                  icon: Icons.restore_rounded,
-                  label: 'Pulihkan kapan saja',
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 13),
-          _PurchaseStatus(
-            message: statusMessage,
-            isError: state.message != null,
-          ),
-          const SizedBox(height: 13),
-          GoldButton(
-            label: isBusy
-                ? 'Menghubungkan ke Play Store'
-                : state.storeAvailable
-                ? 'Beli sekali • $price'
-                : 'Coba lagi di Play Store',
-            icon: Icons.shield_moon_rounded,
-            isLoading: isBusy,
-            onPressed: isBusy ? null : controller.buyRemoveAds,
-            dense: true,
-          ),
-          const SizedBox(height: 3),
-          Center(
-            child: TextButton(
-              onPressed: isBusy ? null : controller.restorePurchases,
-              child: const Text('Sudah pernah membeli? Pulihkan'),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -171,70 +148,22 @@ class RemoveAdsCard extends ConsumerWidget {
 
 class _Benefit extends StatelessWidget {
   const _Benefit({required this.icon, required this.label});
-
   final IconData icon;
   final String label;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Icon(icon, size: 17, color: AppColors.goldDeep),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: AppTheme.sans(
-            size: 9.5,
-            weight: FontWeight.w700,
-            color: AppColors.inkSoft,
-            height: 1.2,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _PurchaseStatus extends StatelessWidget {
-  const _PurchaseStatus({required this.message, required this.isError});
-
-  final String message;
-  final bool isError;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = isError ? AppColors.danger : AppColors.sageDeep;
-    final background = isError ? AppColors.dangerSoft : AppColors.sageMist;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(12),
-      ),
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            isError ? Icons.info_outline_rounded : Icons.lock_outline_rounded,
-            size: 16,
-            color: color,
+          ExcludeSemantics(
+            child: Icon(icon, size: 18, color: theme.colorScheme.secondary),
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              message,
-              style: AppTheme.sans(
-                size: 10.5,
-                weight: FontWeight.w600,
-                color: color,
-                height: 1.3,
-              ),
-            ),
-          ),
+          const SizedBox(width: 10),
+          Expanded(child: Text(label, style: theme.textTheme.bodySmall)),
         ],
       ),
     );

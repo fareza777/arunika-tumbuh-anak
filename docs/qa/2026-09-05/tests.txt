@@ -1,0 +1,303 @@
+00:00 +0: loading C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ad_retry_policy_test.dart
+00:00 +0: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ad_retry_policy_test.dart: banner retries use bounded 15/30/60 second delays
+00:00 +1: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ad_retry_policy_test.dart: repeated banner failures cap at five minutes
+00:00 +2: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/child_and_insights_test.dart: Usia terkoreksi prematur lahir 34 minggu: koreksi 42 hari diterapkan
+00:00 +3: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/child_and_insights_test.dart: Usia terkoreksi prematur cukup bulan (>= 37 mgg) tidak dikoreksi
+00:00 +4: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/child_and_insights_test.dart: Usia terkoreksi prematur koreksi berhenti setelah usia kronologis 24 bulan
+00:00 +5: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/child_and_insights_test.dart: Usia terkoreksi prematur tanpa data kehamilan, perilaku tidak berubah
+00:00 +6: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/child_and_insights_test.dart: Velocity regresi linear data linear sempurna menghasilkan slope yang tepat
+00:00 +7: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/child_and_insights_test.dart: Velocity regresi linear satu outlier tidak merusak tren (robust terhadap salah ukur)
+00:00 +8: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/child_and_insights_test.dart: Velocity regresi linear kurang dari 2 titik atau rentang < 28 hari → null
+00:00 +9: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/child_and_insights_test.dart: Panduan gizi AKG 2019 kelompok usia memetakan angka resmi yang benar
+00:00 +10: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/child_and_insights_test.dart: Panduan gizi AKG 2019 setiap panduan punya checklist & panduan porsi
+00:01 +11: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/dark_mode_test.dart: dark mode preference is part of the settings value
+00:01 +12: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/dark_mode_test.dart: settings notifier restores dark mode from local preferences
+00:01 +13: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/dark_mode_test.dart: light and dark themes use distinct surfaces
+00:01 +14: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/data/journal_repository_test.dart: (setUpAll)
+00:01 +14: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/data/journal_repository_test.dart: editing a ritual retains its completed days
+00:02 +15: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/data/journal_repository_test.dart: saving an existing member keeps memory associations
+00:02 +16: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/data/journal_repository_test.dart: full memory reads contain records past old 50 and 500 limits
+00:02 +17: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/data/journal_repository_test.dart: full completion read contains records past old 100 limit
+00:02 +18: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/data/journal_repository_test.dart: deleting a member keeps their memories without association
+00:02 +19: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/data/journal_repository_test.dart: archive and restore retain completion history
+00:02 +20: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/data/journal_repository_test.dart: paged search treats wildcard text literally and applies mood filter
+00:02 +21: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/data/journal_repository_test.dart: (tearDownAll)
+00:03 +21: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/data/together_models_test.dart: family member round-trips through SQLite map
+00:03 +22: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/data/together_models_test.dart: ritual serializes repeat days in stable order
+00:03 +23: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/data/together_models_test.dart: moment preserves optional member and tag
+00:04 +24: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/journal_backup_service_test.dart: (setUpAll)
+00:04 +24: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/journal_backup_service_test.dart: round trip includes all rows, archives and shared photos past old limits
+00:04 +25: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/journal_backup_service_test.dart: round trip includes all rows, archives and shared photos past old limits
+00:04 +26: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/journal_backup_service_test.dart: round trip includes all rows, archives and shared photos past old limits
+00:04 +27: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/journal_backup_service_test.dart: round trip includes all rows, archives and shared photos past old limits
+00:04 +28: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/journal_backup_service_test.dart: round trip includes all rows, archives and shared photos past old limits
+00:04 +29: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/journal_backup_service_test.dart: round trip includes all rows, archives and shared photos past old limits
+00:05 +30: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/journal_backup_service_test.dart: merge skips duplicate identifiers without overwriting local content
+00:05 +31: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/journal_backup_service_test.dart: invalid final row is rejected before any row or photo is restored
+00:05 +32: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/journal_backup_service_test.dart: unsupported versions and traversal media references are rejected
+00:05 +33: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/journal_backup_service_test.dart: database failure rolls back new rows and photos and preserves legacy data
+00:05 +34: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/journal_backup_service_test.dart: unavailable legacy photo is explicitly reported and text survives
+00:05 +35: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/journal_backup_service_test.dart: broken media payload rejects the complete import
+00:05 +36: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/journal_backup_service_test.dart: broken media payload rejects the complete import
+00:05 +37: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/journal_backup_service_test.dart: fractional version values are not treated as an integer format version
+00:06 +38: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/journal_backup_service_test.dart: oversized record collections reject before processing row values
+00:06 +39: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/journal_backup_service_test.dart: (tearDownAll)
+00:07 +39: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/reminder_schedule_test.dart: (setUpAll)
+00:07 +39: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/reminder_schedule_test.dart: daily reminder keeps the selected device-local time today
+00:07 +40: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/reminder_schedule_test.dart: a passed or equal reminder time moves to the next calendar day
+00:07 +41: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/reminder_schedule_test.dart: daily reminder preserves wall-clock hour across daylight saving
+00:07 +42: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/reminder_schedule_test.dart: invalid times cannot become a normalized but unintended reminder
+00:07 +43: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/reminder_schedule_test.dart: (tearDownAll)
+00:07 +43: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/scrapbook_pdf_test.dart: (setUpAll)
+00:07 +43: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/scrapbook_pdf_test.dart: scrapbook includes moments beyond the previous 60 item cap
+00:08 +44: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/scrapbook_pdf_test.dart: long notes span pages and preserve the final sentence and selected photo
+00:08 +45: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/scrapbook_pdf_test.dart: (tearDownAll)
+00:09 +45: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/together_recap_service_test.dart: weekly recap is deterministic and ignores older entries
+00:09 +46: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/domain/together_recap_service_test.dart: empty recap still gives a useful next-step card
+00:10 +47: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/interstitial_gate_test.dart: interstitial becomes eligible after three successful saves
+00:10 +48: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/interstitial_gate_test.dart: one show is allowed per measurement cycle
+00:10 +49: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: (setUpAll)
+00:10 +50: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: (setUpAll)
+00:10 +50: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: Integritas aset standar WHO 2006 memuat seluruh indikator 0-5 tahun
+00:10 +51: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: Integritas aset standar WHO 2007 memuat rujukan 5-19 tahun
+00:10 +52: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: Integritas aset standar CDC 2000 memuat tabel infant & anak
+00:10 +53: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: Mesin LMS dengan nilai resmi WHO 2006 median menghasilkan z ≈ 0 di berbagai usia
+00:10 +54: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: Mesin LMS dengan nilai resmi WHO 2006 round-trip valueForZ ↔ zFor konsisten
+00:10 +55: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: Mesin LMS dengan nilai resmi WHO 2006 nilai referensi WHO yang diketahui publik
+00:10 +56: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: Mesin LMS dengan nilai resmi WHO 2006 contoh klinis: anak laki-laki 9 bulan, 9,7 kg → z ≈ +0,79
+00:10 +57: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: Mesin LMS dengan nilai resmi WHO 2006 koreksi ekor WHO untuk nilai ekstrem (|z| > 3)
+00:10 +58: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: Mesin LMS dengan nilai resmi WHO 2006 interpolasi linear antar bulan
+00:10 +59: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: Mesin LMS dengan nilai resmi WHO 2006 di luar rentang tabel mengembalikan null
+00:10 +60: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: WHO 2007 & CDC 2000 median tinggi anak laki-laki 5 tahun (61 bln) WHO 2007 ≈ 110 cm
+00:10 +61: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: WHO 2007 & CDC 2000 round-trip CDC wtage anak laki-laki
+00:10 +62: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: Konversi persentil nilai kunci distribusi normal
+00:10 +63: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: Konversi persentil monoton naik
+00:10 +64: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: Klasifikasi Permenkes RI No. 2/2020 BB/U
+00:10 +65: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: Klasifikasi Permenkes RI No. 2/2020 TB/U (stunting)
+00:10 +66: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: Klasifikasi Permenkes RI No. 2/2020 BB/TB
+00:10 +67: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: Klasifikasi Permenkes RI No. 2/2020 IMT/U 5-19 tahun (WHO 2007)
+00:10 +68: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: Klasifikasi Permenkes RI No. 2/2020 LILA/MUAC 6-59 bulan
+00:10 +69: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: Format Indonesia angka & satuan
+00:10 +70: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: Format Indonesia usia
+00:10 +71: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/growth_engine_test.dart: (tearDownAll)
+00:10 +71: loading C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_ad_pause_test.dart
+00:11 +71: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_config_test.dart: debug uses test ads and the fixed product id
+00:11 +72: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_config_test.dart: release without real IDs is invalid
+00:11 +73: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_config_test.dart: rewarded requires explicit opt in even when a real ID is present
+00:11 +74: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_config_test.dart: release with real-looking IDs is valid
+00:12 +75: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_ad_pause_test.dart: startup never requests an interstitial or a rewarded ad
+00:12 +76: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_ad_pause_test.dart: earned callback immediately pauses ads and persists the exact expiry
+00:12 +77: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_ad_pause_test.dart: closing without earning neither pauses nor persists an entitlement
+00:12 +78: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_ad_pause_test.dart: restored pause survives a store error and expires on resume
+00:12 +79: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_ad_pause_test.dart: expired and invalid future saved pauses do not grant a new break
+00:12 +80: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_ad_pause_test.dart: reward pause blocks all further ad requests and evicts a cached interstitial
+00:12 +81: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_ad_pause_test.dart: a restored purchase suppresses optional and automatic ad placements
+00:12 +82: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_ad_pause_test.dart: persistence failure warning survives earned-ad dismissal
+00:12 +83: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_ad_pause_test.dart: privacy failure reaches the settings error handler
+00:12 +84: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_ad_pause_test.dart: reward card wraps at 320px and 2x text in Brightness.dark
+00:13 +85: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_ad_pause_test.dart: reward card wraps at 320px and 2x text in Brightness.dark
+00:13 +86: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_ad_pause_test.dart: reward card wraps at 320px and 2x text in Brightness.dark
+00:13 +87: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_ad_pause_test.dart: reward card wraps at 320px and 2x text in Brightness.dark
+00:13 +88: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_ad_pause_test.dart: reward card wraps at 320px and 2x text in Brightness.dark
+00:13 +89: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_ad_pause_test.dart: reward card wraps at 320px and 2x text in Brightness.dark
+00:13 +90: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_ad_pause_test.dart: reward card wraps at 320px and 2x text in Brightness.dark
+00:13 +91: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_ad_pause_test.dart: reward card wraps at 320px and 2x text in Brightness.light
+00:13 +92: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_ad_pause_test.dart: disabled rewarded feature displays no offer
+00:13 +93: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_ad_pause_test.dart: unconfigured release offer is visibly unavailable and disabled
+00:13 +94: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_ad_pause_test.dart: banner resumes and countdown updates when a pause timer expires
+00:13 +95: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_ad_pause_test.dart: purchase hides the actual banner and rewarded offer
+00:14 +96: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_provider_test.dart: controller starts with ads visible and verifies a restored purchase
+00:14 +97: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_provider_test.dart: unrelated product purchase does not remove ads
+00:14 +98: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_provider_test.dart: billing error preserves a previously verified entitlement
+00:14 +99: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_provider_test.dart: buy and restore delegate to the gateway
+00:14 +100: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_provider_test.dart: buy failure exits checking state with a message
+00:14 +101: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_provider_test.dart: unavailable product never launches purchase
+00:14 +102: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_provider_test.dart: reconnection loads the current Play price without buying
+00:14 +103: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_provider_test.dart: canceled and pending purchases have explicit user-facing status
+00:14 +104: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_provider_test.dart: a late unavailable result after disposal does not mutate the provider
+00:14 +105: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_rewarded_ad_test.dart: only the earned callback grants one reward
+00:14 +106: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_rewarded_ad_test.dart: dismissal without earning grants nothing
+00:14 +107: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_rewarded_ad_test.dart: load failure and show failure grant nothing
+00:14 +108: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_rewarded_ad_test.dart: leaving the route during loading disposes the late ad
+00:14 +109: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_rewarded_ad_test.dart: disposal while loading prevents late presentation and reward
+00:14 +110: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_rewarded_ad_test.dart: the default disabled feature never loads a rewarded ad
+00:14 +111: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_rewarded_ad_test.dart: missing release rewarded ID never requests or grants an ad
+00:14 +112: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_rewarded_ad_test.dart: consent denial never requests an ad or grants a reward
+00:15 +113: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_service_test.dart: rejected launch reports a recoverable error instead of waiting forever
+00:15 +114: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_service_test.dart: disposing during acknowledgement stops late batch events safely
+00:15 +115: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_state_test.dart: initial state keeps ads visible while purchase is verified
+00:15 +116: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_state_test.dart: verified entitlement removes ads and stops verification
+00:15 +117: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_state_test.dart: verification error does not revoke a previously verified entitlement
+00:15 +118: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/monetization_state_test.dart: unverified errors keep ads visible
+00:16 +119: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/product_selector_test.dart: selects the requested product from a platform-specific list
+00:16 +120: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/product_selector_test.dart: exposes a Play Store query error to the purchase UI
+00:16 +121: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/product_selector_test.dart: explains when the product is not available for this Play account
+00:16 +122: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/remove_ads_card_test.dart: unavailable store shows no invented price or purchase action
+00:17 +123: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/remove_ads_card_test.dart: reconnect fetches a localized price before enabling purchase
+00:18 +124: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/remove_ads_card_test.dart: purchase and restore wrap at 320px and 2x in Brightness.dark
+00:18 +125: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/remove_ads_card_test.dart: active entitlement remains readable with large text in Brightness.dark
+00:18 +126: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/remove_ads_card_test.dart: purchase and restore wrap at 320px and 2x in Brightness.light
+00:18 +127: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/stable_banner_ad_test.dart: banner slot reserves height while loading
+00:18 +128: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/stable_banner_ad_test.dart: banner slot reserves height while loading
+00:19 +129: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/stable_banner_ad_test.dart: banner slot keeps the same height after an ad load error
+00:19 +130: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/stable_banner_ad_test.dart: banner slot shrinks only after a verified entitlement
+00:19 +131: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/stable_banner_ad_test.dart: main shell keeps the banner above the feature content
+00:20 +132: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/state/journal_reminder_test.dart: legacy measurement consent does not opt into family reminders
+00:20 +133: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/state/journal_reminder_test.dart: journal time persists separately from legacy measurement time
+00:20 +134: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/state/journal_reminder_test.dart: invalid saved settings use safe defaults instead of crashing
+00:20 +135: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/state/journal_reminder_test.dart: denied permission keeps reminders disabled and unscheduled
+00:20 +136: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/state/journal_reminder_test.dart: enabling schedules one daily inexact reminder in the device zone
+00:20 +137: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/state/journal_reminder_test.dart: resume refreshes timezone without requesting permission again
+00:20 +138: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/state/journal_reminder_test.dart: permission revoked outside app cancels and clears enabled preference
+00:20 +139: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/state/journal_reminder_test.dart: timezone failure preserves preference and reports retry instead of UTC
+00:20 +140: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/state/journal_reminder_test.dart: failed scheduling never saves a false enabled confirmation
+00:20 +141: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/state/journal_reminder_test.dart: failed preference write cancels a new schedule and restores settings
+00:20 +142: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/state/journal_reminder_test.dart: failed disabling restores the previously enabled schedule
+00:20 +143: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/state/journal_reminder_test.dart: resume during permission dialog cannot cancel the new opt-in
+00:20 +144: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/state/journal_reminder_test.dart: a blocked journal channel is treated as denied permission
+00:20 +145: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/state/journal_reminder_test.dart: changing an enabled reminder replaces its time without another opt-in
+00:21 +146: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/state/together_actions_test.dart: (setUpAll)
+00:21 +146: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/state/together_actions_test.dart: failed database save removes only its new photo copy
+00:22 +147: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/state/together_actions_test.dart: replacement removes unused managed photo but preserves picker original
+00:22 +148: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/state/together_actions_test.dart: shared photo remains until the last memory and member reference is gone
+00:23 +149: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/state/together_actions_test.dart: deleting a legacy memory never deletes its original gallery file
+00:23 +150: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/editor_flows_test.dart: blank member names show validation without saving
+00:23 +151: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/editor_flows_test.dart: blank member names show validation without saving
+00:23 +152: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/editor_flows_test.dart: blank member names show validation without saving
+00:23 +153: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/editor_flows_test.dart: blank member names show validation without saving
+00:23 +154: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/editor_flows_test.dart: blank member names show validation without saving
+00:23 +155: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/editor_flows_test.dart: blank member names show validation without saving
+00:23 +156: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/editor_flows_test.dart: blank member names show validation without saving
+00:23 +157: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/editor_flows_test.dart: blank member names show validation without saving
+00:23 +158: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/editor_flows_test.dart: blank member names show validation without saving
+00:23 +159: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/editor_flows_test.dart: blank member names show validation without saving
+00:25 +160: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/editor_flows_test.dart: member save failure retains input and allows a retry
+00:25 +161: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/editor_flows_test.dart: pending saves cannot add the same member twice
+00:25 +162: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/editor_flows_test.dart: sheet close protects changed input until discard is confirmed
+00:26 +163: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: Today counts only scheduled habits and opens the requested lists
+00:26 +164: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: Today counts only scheduled habits and opens the requested lists
+00:27 +165: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: Today counts only scheduled habits and opens the requested lists
+00:27 +166: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: Today counts only scheduled habits and opens the requested lists
+00:28 +167: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/editor_flows_test.dart: ritual archive and restore are confirmed actions
+00:28 +168: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/editor_flows_test.dart: ritual archive and restore are confirmed actions
+00:28 +169: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: timeline search distinguishes no matches from an empty journal
+00:29 +170: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/editor_flows_test.dart: ritual requires a scheduled day and offers readable day targets
+00:29 +171: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: mood filtering returns its matching story and a card opens read detail
+00:30 +172: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/editor_flows_test.dart: moment back protects draft and save failure leaves a retry
+00:30 +173: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: off-day habits cannot be checked and archive filters stay separate
+00:30 +174: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/editor_flows_test.dart: missing member references are cleared safely when saving a moment
+00:30 +175: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: failed completion keeps a habit unchecked and can be retried
+00:30 +176: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/editor_flows_test.dart: legacy future moment dates do not crash the date picker
+00:31 +177: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: family rows show complete association counts and open member editing
+00:31 +178: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/editor_flows_test.dart: removing an unreadable moment photo saves the cleared attachment
+00:31 +179: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: onboarding failure retains input and retry creates one member
+00:32 +180: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: onboarding failure retains input and retry creates one member
+00:32 +181: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: onboarding failure retains input and retry creates one member
+00:33 +182: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/editor_flows_test.dart: photo picker errors preserve the story and allow saving without a photo
+00:33 +183: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: reading the welcome page to the end opens setup at its beginning
+00:33 +184: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: settings saves a family name and opens the in-app privacy policy
+00:33 +185: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: settings saves a family name and opens the in-app privacy policy
+00:34 +186: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: settings saves a family name and opens the in-app privacy policy
+00:34 +187: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: deleting a read story requires confirmation and updates the timeline
+00:34 +188: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/editor_flows_test.dart: ritual save errors preserve edited schedule for retry
+00:34 +189: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: shell offers one ad boundary after a new story is saved and returned
+00:35 +190: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: shell skips ad boundaries for canceled invalid and failed stories
+00:36 +191: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: shell skips ad boundaries for canceled invalid and failed stories
+00:36 +192: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: shell skips ad boundaries when an existing story is edited
+00:37 +193: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: shell keeps all tabs usable without a purchase 320x640-dark-2x
+00:38 +194: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: shell keeps all tabs usable without a purchase 390x844-light-1x
+00:39 +195: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: responsive today heading keeps words whole at doubled text
+00:39 +196: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: responsive rituals heading keeps words whole at doubled text
+00:39 +197: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: responsive family heading keeps words whole at doubled text
+00:39 +198: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: responsive family hero keeps its name whole at doubled text
+00:39 +199: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: responsive onboarding preserves whole branding and headlines
+00:39 +200: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout today 320x640-dark-1x
+00:39 +201: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout rituals 320x640-dark-1x
+00:39 +202: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout moments 320x640-dark-1x
+00:39 +203: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout family 320x640-dark-1x
+00:40 +204: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout onboarding 320x640-dark-1x
+00:40 +205: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout onboarding-setup 320x640-dark-1x
+00:40 +206: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout settings 320x640-dark-1x
+00:40 +207: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout privacy 320x640-dark-1x
+00:40 +208: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout help 320x640-dark-1x
+00:40 +209: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout moment-detail 320x640-dark-1x
+00:40 +210: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout main-shell 320x640-dark-1x
+00:41 +211: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout today 320x640-dark-2x
+00:41 +212: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout rituals 320x640-dark-2x
+00:41 +213: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout moments 320x640-dark-2x
+00:41 +214: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout family 320x640-dark-2x
+00:41 +215: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout onboarding 320x640-dark-2x
+00:41 +216: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout onboarding-setup 320x640-dark-2x
+00:41 +217: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout settings 320x640-dark-2x
+00:41 +218: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout privacy 320x640-dark-2x
+00:42 +219: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout help 320x640-dark-2x
+00:42 +220: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout moment-detail 320x640-dark-2x
+00:42 +221: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout main-shell 320x640-dark-2x
+00:42 +222: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout today 320x640-light-1x
+00:42 +223: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout rituals 320x640-light-1x
+00:42 +224: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout moments 320x640-light-1x
+00:42 +225: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout family 320x640-light-1x
+00:42 +226: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout onboarding 320x640-light-1x
+00:42 +227: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout onboarding-setup 320x640-light-1x
+00:42 +228: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout settings 320x640-light-1x
+00:43 +229: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout privacy 320x640-light-1x
+00:43 +230: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout help 320x640-light-1x
+00:43 +231: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout moment-detail 320x640-light-1x
+00:43 +232: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout main-shell 320x640-light-1x
+00:43 +233: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout today 320x640-light-2x
+00:43 +234: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout rituals 320x640-light-2x
+00:43 +235: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout moments 320x640-light-2x
+00:43 +236: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout family 320x640-light-2x
+00:44 +237: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout onboarding 320x640-light-2x
+00:44 +238: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout onboarding-setup 320x640-light-2x
+00:44 +239: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout settings 320x640-light-2x
+00:44 +240: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout privacy 320x640-light-2x
+00:44 +241: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout help 320x640-light-2x
+00:44 +242: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout moment-detail 320x640-light-2x
+00:44 +243: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout main-shell 320x640-light-2x
+00:44 +244: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout today 390x844-dark-1x
+00:45 +245: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout rituals 390x844-dark-1x
+00:45 +246: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout moments 390x844-dark-1x
+00:45 +247: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout family 390x844-dark-1x
+00:45 +248: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout onboarding 390x844-dark-1x
+00:45 +249: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout onboarding-setup 390x844-dark-1x
+00:45 +250: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout settings 390x844-dark-1x
+00:45 +251: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout privacy 390x844-dark-1x
+00:45 +252: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout help 390x844-dark-1x
+00:45 +253: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout moment-detail 390x844-dark-1x
+00:45 +254: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout main-shell 390x844-dark-1x
+00:45 +255: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout today 390x844-dark-2x
+00:46 +256: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout rituals 390x844-dark-2x
+00:46 +257: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout moments 390x844-dark-2x
+00:46 +258: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout family 390x844-dark-2x
+00:46 +259: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout onboarding 390x844-dark-2x
+00:46 +260: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout onboarding-setup 390x844-dark-2x
+00:46 +261: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout settings 390x844-dark-2x
+00:46 +262: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout privacy 390x844-dark-2x
+00:46 +263: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout help 390x844-dark-2x
+00:46 +264: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout moment-detail 390x844-dark-2x
+00:46 +265: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout main-shell 390x844-dark-2x
+00:47 +266: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout today 390x844-light-1x
+00:47 +267: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout rituals 390x844-light-1x
+00:47 +268: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout moments 390x844-light-1x
+00:47 +269: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout family 390x844-light-1x
+00:47 +270: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout onboarding 390x844-light-1x
+00:47 +271: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout onboarding-setup 390x844-light-1x
+00:47 +272: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout settings 390x844-light-1x
+00:47 +273: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout privacy 390x844-light-1x
+00:47 +274: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout help 390x844-light-1x
+00:47 +275: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout moment-detail 390x844-light-1x
+00:47 +276: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout main-shell 390x844-light-1x
+00:48 +277: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout today 390x844-light-2x
+00:48 +278: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout rituals 390x844-light-2x
+00:48 +279: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout moments 390x844-light-2x
+00:48 +280: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout family 390x844-light-2x
+00:48 +281: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout onboarding 390x844-light-2x
+00:48 +282: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout onboarding-setup 390x844-light-2x
+00:48 +283: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout settings 390x844-light-2x
+00:48 +284: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout privacy 390x844-light-2x
+00:48 +285: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout help 390x844-light-2x
+00:48 +286: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout moment-detail 390x844-light-2x
+00:49 +287: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: layout main-shell 390x844-light-2x
+00:49 +288: C:/Aplikasi Tinggi Dan Berat Badan Anak Kimi/arunika_growth/test/ui/journal_pages_test.dart: (tearDownAll)
+00:49 +288: All tests passed!
