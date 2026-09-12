@@ -3,12 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/ritual.dart';
+import '../../domain/together/recap_service.dart';
+import '../../domain/together/together_copy.dart';
 import '../../state/app_settings.dart';
 import '../../state/together_providers.dart';
 import '../settings/settings_screen.dart';
 import '../widgets/editorial_card.dart';
 import '../widgets/journal_components.dart';
-import 'moment_detail_screen.dart';
+import 'moments_screen.dart';
 import 'rituals_screen.dart';
 
 class TodayScreen extends ConsumerWidget {
@@ -35,6 +37,7 @@ class TodayScreen extends ConsumerWidget {
     final recap = ref.watch(recapProvider);
     final c = Theme.of(context).colorScheme;
     final viewRituals = onOpenRituals ?? onOpenRitual;
+    final clock = DateTime.now();
     return JournalPage(
       onRefresh: () async {
         ref.invalidate(journalTodayProvider);
@@ -55,8 +58,10 @@ class TodayScreen extends ConsumerWidget {
         JournalBlock(
           child: JournalHeader(
             eyebrow: DateFormat('EEEE, d MMMM', 'id_ID').format(now),
-            title: settings.familyName,
-            subtitle: 'Satu kebiasaan kecil. Satu cerita untuk diingat.',
+            title: greetingFor(
+              DateTime(now.year, now.month, now.day, clock.hour, clock.minute),
+            ),
+            subtitle: settings.familyName,
             action: IconButton.filledTonal(
               tooltip: 'Pengaturan',
               onPressed: () => Navigator.of(context).push(
@@ -101,18 +106,12 @@ class TodayScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Icon(Icons.edit_note, color: c.onPrimaryContainer),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Jurnal hari ini',
-                      style: TextStyle(
-                        color: c.onPrimaryContainer,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
+                Text(
+                  'Jurnal hari ini',
+                  style: TextStyle(
+                    color: c.onPrimaryContainer,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -156,44 +155,7 @@ class TodayScreen extends ConsumerWidget {
               action: 'Coba lagi',
               onAction: () => ref.invalidate(recapProvider),
             ),
-            data: (value) => LayoutBuilder(
-              builder: (context, constraints) {
-                final largeText =
-                    MediaQuery.textScalerOf(context).scale(14) > 20;
-                final columns = largeText
-                    ? 1
-                    : constraints.maxWidth >= 348
-                    ? 3
-                    : 2;
-                final width =
-                    (constraints.maxWidth - 10 * (columns - 1)) / columns;
-                final cards = [
-                  _Count(
-                    value: value.momentCount,
-                    label: 'Momen',
-                    icon: Icons.auto_stories_outlined,
-                  ),
-                  _Count(
-                    value: value.ritualCount,
-                    label: 'Kebiasaan',
-                    icon: Icons.check_circle_outline,
-                  ),
-                  _Count(
-                    value: value.activeDays,
-                    label: 'Hari bersama',
-                    icon: Icons.calendar_today_outlined,
-                  ),
-                ];
-                return Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    for (final card in cards)
-                      SizedBox(width: width, child: card),
-                  ],
-                );
-              },
-            ),
+            data: (value) => _WeekLetter(recap: value),
           ),
         ),
         JournalBlock(
@@ -224,41 +186,7 @@ class TodayScreen extends ConsumerWidget {
                   onAction: onOpenMoment,
                 );
               }
-              final moment = items.first;
-              return EditorialCard(
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => MomentDetailScreen(moment: moment),
-                  ),
-                ),
-                semanticLabel: 'Baca ${moment.title}',
-                shadow: false,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${moment.tag.label} · ${DateFormat('d MMM yyyy', 'id_ID').format(moment.capturedAt)}',
-                      style: TextStyle(color: c.primary, fontSize: 12),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      moment.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTheme.serif(size: 23),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      moment.note,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(height: 1.6, color: c.onSurfaceVariant),
-                    ),
-                    const SizedBox(height: 12),
-                    const Text('Baca cerita →'),
-                  ],
-                ),
-              );
+              return MomentJournalCard(moment: items.first);
             },
           ),
         ),
@@ -275,6 +203,32 @@ class TodayScreen extends ConsumerWidget {
     'Jeda bersama apa yang terasa menyenangkan?',
     'Cerita apa yang ingin dibawa ke minggu depan?',
   ];
+}
+
+class _WeekLetter extends StatelessWidget {
+  const _WeekLetter({required this.recap});
+  final WeeklyRecap recap;
+  @override
+  Widget build(BuildContext context) {
+    final card = recap.cards.first;
+    final c = Theme.of(context).colorScheme;
+    return EditorialCard(
+      shadow: false,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          WeekPresenceStrip(days: recap.week),
+          const SizedBox(height: 18),
+          Text(card.title, style: AppTheme.serif(size: 22, height: 1.25)),
+          const SizedBox(height: 8),
+          Text(
+            card.detail,
+            style: TextStyle(color: c.onSurfaceVariant, height: 1.5),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _DailyCard extends StatelessWidget {
@@ -298,8 +252,9 @@ class _DailyCard extends StatelessWidget {
         icon: Icons.wb_sunny_outlined,
       );
     }
-    final count = rituals.where((r) => completed.contains(r.id)).length;
-    final pending = rituals.where((r) => !completed.contains(r.id)).toList();
+    final ordered = [...rituals]
+      ..sort((a, b) => a.timeOfDay.index.compareTo(b.timeOfDay.index));
+    final count = ordered.where((r) => completed.contains(r.id)).length;
     final c = Theme.of(context).colorScheme;
     return EditorialCard(
       shadow: false,
@@ -314,18 +269,18 @@ class _DailyCard extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: LinearProgressIndicator(
-                    value: count / rituals.length,
+                    value: count / ordered.length,
                     minHeight: 7,
                     color: c.secondary,
                     backgroundColor: c.secondaryContainer,
                     semanticsLabel:
-                        '$count dari ${rituals.length} kebiasaan selesai',
+                        '$count dari ${ordered.length} kebiasaan selesai',
                   ),
                 ),
               ),
               const SizedBox(width: 14),
               Text(
-                '$count / ${rituals.length}',
+                '$count / ${ordered.length}',
                 style: AppTheme.sans(
                   size: 16,
                   weight: FontWeight.w800,
@@ -334,20 +289,19 @@ class _DailyCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          if (pending.isEmpty)
+          const SizedBox(height: 8),
+          if (count == ordered.length)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Text(
                 'Semua jadwal hari ini sudah dilakukan. Nikmati waktu bersama.',
                 style: TextStyle(color: c.onSurfaceVariant, height: 1.5),
               ),
-            )
-          else
+            ),
+          for (final ritual in ordered)
             RitualRow(
-              ritual: pending.first,
-              completed: false,
-              onEdit: onView,
+              ritual: ritual,
+              completed: completed.contains(ritual.id),
               compact: true,
             ),
           Align(
@@ -356,39 +310,6 @@ class _DailyCard extends StatelessWidget {
               onPressed: onView,
               child: const Text('Lihat semua kebiasaan'),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Count extends StatelessWidget {
-  const _Count({required this.value, required this.label, required this.icon});
-  final int value;
-  final String label;
-  final IconData icon;
-  @override
-  Widget build(BuildContext context) {
-    final c = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: c.secondaryContainer,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 22, color: c.onSecondaryContainer),
-          const SizedBox(height: 12),
-          Text(
-            '$value',
-            style: AppTheme.serif(size: 30, color: c.onSecondaryContainer),
-          ),
-          Text(
-            label,
-            style: AppTheme.sans(size: 12, color: c.onSecondaryContainer),
           ),
         ],
       ),

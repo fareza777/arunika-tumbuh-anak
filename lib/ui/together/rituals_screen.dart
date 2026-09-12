@@ -160,7 +160,7 @@ class RitualRow extends ConsumerStatefulWidget {
     super.key,
     required this.ritual,
     required this.completed,
-    required this.onEdit,
+    this.onEdit,
     this.compact = false,
     this.loading = false,
   });
@@ -168,7 +168,7 @@ class RitualRow extends ConsumerStatefulWidget {
   final bool completed;
   final bool compact;
   final bool loading;
-  final VoidCallback onEdit;
+  final VoidCallback? onEdit;
   @override
   ConsumerState<RitualRow> createState() => _RitualRowState();
 }
@@ -296,14 +296,15 @@ class _RitualRowState extends ConsumerState<RitualRow> {
               ),
             ),
           ),
-          IconButton(
-            tooltip: widget.compact ? 'Lihat kebiasaan' : 'Edit kebiasaan',
-            onPressed: _saving ? null : widget.onEdit,
-            icon: Icon(
-              widget.compact ? Icons.chevron_right : Icons.more_horiz,
-              color: c.onSurfaceVariant,
+          if (widget.onEdit != null)
+            IconButton(
+              tooltip: widget.compact ? 'Lihat kebiasaan' : 'Edit kebiasaan',
+              onPressed: _saving ? null : widget.onEdit,
+              icon: Icon(
+                widget.compact ? Icons.chevron_right : Icons.more_horiz,
+                color: c.onSurfaceVariant,
+              ),
             ),
-          ),
         ],
       ),
     );

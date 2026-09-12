@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-import '../../core/theme/app_theme.dart';
 import '../../domain/monetization/ad_retry_policy.dart';
 import '../../domain/monetization/ad_presentations.dart';
 import '../../domain/monetization/monetization_config.dart';
@@ -38,29 +37,24 @@ class StableBannerSlot extends StatelessWidget {
     if (adsRemoved) return const SizedBox.shrink();
     final theme = Theme.of(context);
 
-    return SizedBox(
-      key: ValueKey('banner-slot:${placement.name}'),
-      width: double.infinity,
-      height: height,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: theme.cardColor,
-          border: Border(
-            top: BorderSide(color: theme.colorScheme.outline),
-            bottom: BorderSide(color: theme.colorScheme.outline),
+    return Semantics(
+      label: hasError ? 'Iklan belum tersedia' : 'Iklan',
+      container: true,
+      child: SizedBox(
+        key: ValueKey('banner-slot:${placement.name}'),
+        width: double.infinity,
+        height: height,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            border: Border(
+              top: BorderSide(color: theme.colorScheme.outlineVariant),
+            ),
           ),
+          child: adWidget == null
+              ? const SizedBox.expand()
+              : Center(child: adWidget),
         ),
-        child: adWidget == null
-            ? Center(
-                child: Text(
-                  hasError ? 'Iklan akan dimuat kembali' : 'Memuat iklan…',
-                  style: AppTheme.sans(
-                    size: 10,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              )
-            : Center(child: adWidget),
       ),
     );
   }
@@ -110,18 +104,14 @@ class _StableBannerAdState extends ConsumerState<StableBannerAd> {
     final ad = _ad;
     final adHeight = (_adSize?.height ?? StableBannerSlot.defaultHeight)
         .toDouble();
-    return SafeArea(
-      top: true,
-      bottom: false,
-      child: StableBannerSlot(
-        placement: widget.placement,
-        adsRemoved: false,
-        height: adHeight < StableBannerSlot.defaultHeight
-            ? StableBannerSlot.defaultHeight
-            : adHeight,
-        hasError: _hasError,
-        adWidget: ad == null || !_adLoaded ? null : AdWidget(ad: ad),
-      ),
+    return StableBannerSlot(
+      placement: widget.placement,
+      adsRemoved: false,
+      height: adHeight < StableBannerSlot.defaultHeight
+          ? StableBannerSlot.defaultHeight
+          : adHeight,
+      hasError: _hasError,
+      adWidget: ad == null || !_adLoaded ? null : AdWidget(ad: ad),
     );
   }
 

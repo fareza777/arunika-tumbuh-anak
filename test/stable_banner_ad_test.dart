@@ -37,7 +37,8 @@ void main() {
 
     final slot = find.byKey(const ValueKey('banner-slot:mainShell'));
     expect(tester.getSize(slot).height, 54);
-    expect(find.text('Iklan akan dimuat kembali'), findsOneWidget);
+    expect(find.text('Iklan akan dimuat kembali'), findsNothing);
+    expect(find.text('Memuat iklan…'), findsNothing);
   });
 
   testWidgets('banner slot shrinks only after a verified entitlement', (
@@ -58,7 +59,7 @@ void main() {
     expect(tester.getSize(find.byType(Scaffold)).height, greaterThan(0));
   });
 
-  testWidgets('main shell keeps the banner above the feature content', (
+  testWidgets('main shell keeps the banner below the feature content', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -77,7 +78,7 @@ void main() {
 
     expect(
       tester.getRect(find.byKey(const ValueKey('test-main-shell-banner'))).top,
-      lessThan(
+      greaterThan(
         tester
             .getRect(find.byKey(const ValueKey('test-main-shell-content')))
             .top,

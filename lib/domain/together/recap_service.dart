@@ -2,12 +2,25 @@ import '../../data/models/moment.dart';
 import '../../data/models/ritual.dart';
 import '../../data/models/ritual_check_in.dart';
 
+class WeekDayMark {
+  const WeekDayMark({required this.date, required this.active});
+
+  final DateTime date;
+  final bool active;
+
+  String get shortLabel {
+    const labels = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+    return labels[date.weekday - 1];
+  }
+}
+
 class WeeklyRecap {
   const WeeklyRecap({
     required this.momentCount,
     required this.ritualCount,
     required this.topTag,
     required this.activeDays,
+    required this.week,
     required this.cards,
   });
 
@@ -15,6 +28,7 @@ class WeeklyRecap {
   final int ritualCount;
   final MomentTag? topTag;
   final int activeDays;
+  final List<WeekDayMark> week;
   final List<RecapCardData> cards;
 }
 
@@ -63,10 +77,19 @@ class RecapService {
           .key;
     }
 
-    final activeDays = <String>{
+    final activeKeys = <String>{
       ...recentMoments.map((moment) => ritualDayKey(moment.capturedAt)),
       ...recentCheckIns.map((checkIn) => checkIn.dayKey),
-    }.length;
+    };
+    final week = <WeekDayMark>[
+      for (var i = 6; i >= 0; i--)
+        WeekDayMark(
+          date: today.subtract(Duration(days: i)),
+          active: activeKeys.contains(
+            ritualDayKey(today.subtract(Duration(days: i))),
+          ),
+        ),
+    ];
 
     final cards = <RecapCardData>[
       RecapCardData(
@@ -102,7 +125,8 @@ class RecapService {
       momentCount: recentMoments.length,
       ritualCount: recentCheckIns.length,
       topTag: topTag,
-      activeDays: activeDays,
+      activeDays: activeKeys.length,
+      week: week,
       cards: cards,
     );
   }

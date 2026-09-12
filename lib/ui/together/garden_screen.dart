@@ -1,13 +1,17 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_theme.dart';
 import '../../data/models/family_member.dart';
+import '../../data/models/moment.dart';
+import '../../domain/together/recap_service.dart';
 import '../../state/app_settings.dart';
 import '../../state/together_providers.dart';
 import '../settings/settings_screen.dart';
 import '../widgets/editorial_card.dart';
 import '../widgets/journal_components.dart';
 import 'family_member_editor_sheet.dart';
+import 'moments_screen.dart';
 
 class GardenScreen extends ConsumerWidget {
   const GardenScreen({super.key});
@@ -88,6 +92,16 @@ class GardenScreen extends ConsumerWidget {
                   style: TextStyle(color: c.onTertiaryContainer, height: 1.5),
                 ),
                 const SizedBox(height: 20),
+                recap.maybeWhen(
+                  data: (value) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      WeekPresenceStrip(days: value.week),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                  orElse: () => const SizedBox.shrink(),
+                ),
                 members.when(
                   loading: () => const LinearProgressIndicator(),
                   error: (_, _) => const Text('Daftar anggota belum terbaca.'),
@@ -98,14 +112,10 @@ class GardenScreen extends ConsumerWidget {
                       for (final person in people.take(8))
                         Tooltip(
                           message: person.name,
-                          child: CircleAvatar(
-                            backgroundColor: c.surface,
-                            foregroundColor: c.primary,
-                            child: Text(
-                              person.name.characters.firstOrNull
-                                      ?.toUpperCase() ??
-                                  '?',
-                            ),
+                          child: _FamilyAvatar(
+                            person: person,
+                            background: c.surface,
+                            foreground: c.primary,
                           ),
                         ),
                       if (people.length > 8)
@@ -155,6 +165,19 @@ class GardenScreen extends ConsumerWidget {
             ),
             data: (value) => Column(
               children: [
+                moments.maybeWhen(
+                  data: (items) {
+                    final featured = _featuredMoment(items, value);
+                    if (featured == null) {
+                      return const SizedBox.shrink();
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: MomentJournalCard(moment: featured),
+                    );
+                  },
+                  orElse: () => const SizedBox.shrink(),
+                ),
                 for (final card in value.cards)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 12),
@@ -239,14 +262,10 @@ class GardenScreen extends ConsumerWidget {
                           onTap: () => _edit(context, person),
                           semanticLabel: 'Edit anggota ${person.name}',
                           child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: c.secondaryContainer,
-                              foregroundColor: c.onSecondaryContainer,
-                              child: Text(
-                                person.name.characters.firstOrNull
-                                        ?.toUpperCase() ??
-                                    '?',
-                              ),
+                            leading: _FamilyAvatar(
+                              person: person,
+                              background: c.secondaryContainer,
+                              foreground: c.onSecondaryContainer,
                             ),
                             title: Text(
                               person.name,
@@ -266,6 +285,60 @@ class GardenScreen extends ConsumerWidget {
                 ),
         ),
       ],
+    );
+  }
+}
+
+Moment? _featuredMoment(List<Moment> items, WeeklyRecap recap) {
+  if (recap.week.isEmpty) return null;
+  final start = recap.week.first.date;
+  final end = recap.week.last.date;
+  for (final moment in items) {
+    final day = DateTime(
+      moment.capturedAt.year,
+      moment.capturedAt.month,
+      moment.capturedAt.day,
+    );
+    if (!day.isBefore(start) && !day.isAfter(end)) return moment;
+  }
+  return null;
+}
+
+class _FamilyAvatar extends StatelessWidget {
+  const _FamilyAvatar({
+    required this.person,
+    required this.background,
+    required this.foreground,
+  });
+  final FamilyMember person;
+  final Color background;
+  final Color foreground;
+
+  @override
+  Widget build(BuildContext context) {
+    final path = person.photoPath?.trim();
+    final initial =
+        person.name.characters.firstOrNull?.toUpperCase() ?? '?';
+    if (path == null || path.isEmpty) {
+      return CircleAvatar(
+        backgroundColor: background,
+        foregroundColor: foreground,
+        child: Text(initial),
+      );
+    }
+    return CircleAvatar(
+      backgroundColor: background,
+      foregroundColor: foreground,
+      child: ClipOval(
+        child: Image.file(
+          File(path),
+          width: 40,
+          height: 40,
+          fit: BoxFit.cover,
+          errorBuilder: (_, _, _) =>
+              Center(child: Text(initial, style: TextStyle(color: foreground))),
+        ),
+      ),
     );
   }
 }

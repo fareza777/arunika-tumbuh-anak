@@ -37,6 +37,9 @@ void main() {
     expect(recap.ritualCount, 1);
     expect(recap.topTag, MomentTag.gratitude);
     expect(recap.activeDays, 1);
+    expect(recap.week, hasLength(7));
+    expect(recap.week.last.active, isFalse);
+    expect(recap.week[5].active, isTrue);
     expect(recap.cards, isNotEmpty);
   });
 
@@ -50,6 +53,8 @@ void main() {
 
     expect(recap.momentCount, 0);
     expect(recap.ritualCount, 0);
+    expect(recap.week, hasLength(7));
+    expect(recap.week.every((day) => !day.active), isTrue);
     expect(recap.cards.first.title, 'Ada ruang untuk cerita baru');
   });
 }

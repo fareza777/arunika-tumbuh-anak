@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_theme.dart';
+import '../../domain/together/recap_service.dart';
 import 'editorial_background.dart';
 
 class JournalPage extends StatelessWidget {
@@ -16,7 +17,7 @@ class JournalPage extends StatelessWidget {
       slivers: [
         const SliverToBoxAdapter(child: SizedBox(height: 20)),
         ...slivers,
-        const SliverToBoxAdapter(child: SizedBox(height: 100)),
+        const SliverToBoxAdapter(child: SizedBox(height: 28)),
       ],
     );
     if (onRefresh != null) {
@@ -108,6 +109,52 @@ class JournalHeader extends StatelessWidget {
       );
     },
   );
+}
+
+class WeekPresenceStrip extends StatelessWidget {
+  const WeekPresenceStrip({super.key, required this.days});
+  final List<WeekDayMark> days;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).colorScheme;
+    return Semantics(
+      label: 'Hari aktif tujuh hari terakhir',
+      child: Row(
+        children: [
+          for (final day in days)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 3),
+                child: Column(
+                  children: [
+                    Text(
+                      day.shortLabel,
+                      style: AppTheme.sans(
+                        size: 10,
+                        weight: FontWeight.w700,
+                        color: day.active ? c.secondary : c.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 220),
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: day.active
+                            ? c.secondary
+                            : c.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(99),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 class JournalSection extends StatelessWidget {

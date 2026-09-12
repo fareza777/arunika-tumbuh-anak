@@ -120,47 +120,50 @@ class _MainShellState extends ConsumerState<MainShell>
       child: Scaffold(
         body: SafeArea(
           bottom: false,
-          child: MainShellLayout(
-            banner: const StableBannerAd(placement: BannerPlacement.mainShell),
-            content: IndexedStack(
-              index: _index,
-              children: [
-                TodayScreen(
-                  onOpenMoment: _openMoment,
-                  onOpenRitual: _openRitual,
-                  onOpenRituals: () => _select(1),
-                  onOpenMoments: () => _select(2),
-                  onOpenGarden: () => _select(3),
-                ),
-                RitualsScreen(onOpenRitual: _openRitual),
-                MomentsScreen(onOpenMoment: _openMoment),
-                const GardenScreen(),
-              ],
-            ),
+          child: IndexedStack(
+            index: _index,
+            children: [
+              TodayScreen(
+                onOpenMoment: _openMoment,
+                onOpenRitual: _openRitual,
+                onOpenRituals: () => _select(1),
+                onOpenMoments: () => _select(2),
+                onOpenGarden: () => _select(3),
+              ),
+              RitualsScreen(onOpenRitual: _openRitual),
+              MomentsScreen(onOpenMoment: _openMoment),
+              const GardenScreen(),
+            ],
           ),
         ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: _index,
-          onDestinationSelected: _select,
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.wb_sunny_outlined),
-              selectedIcon: Icon(Icons.wb_sunny_rounded),
-              label: 'Hari ini',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.checklist_rounded),
-              label: 'Kebiasaan',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.auto_stories_outlined),
-              selectedIcon: Icon(Icons.auto_stories),
-              label: 'Momen',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.people_outline),
-              selectedIcon: Icon(Icons.people),
-              label: 'Keluarga',
+        bottomNavigationBar: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const StableBannerAd(placement: BannerPlacement.mainShell),
+            NavigationBar(
+              selectedIndex: _index,
+              onDestinationSelected: _select,
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.wb_sunny_outlined),
+                  selectedIcon: Icon(Icons.wb_sunny_rounded),
+                  label: 'Hari ini',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.checklist_rounded),
+                  label: 'Kebiasaan',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.auto_stories_outlined),
+                  selectedIcon: Icon(Icons.auto_stories),
+                  label: 'Momen',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.people_outline),
+                  selectedIcon: Icon(Icons.people),
+                  label: 'Keluarga',
+                ),
+              ],
             ),
           ],
         ),
@@ -180,8 +183,8 @@ class MainShellLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Column(
     children: [
-      banner,
       Expanded(child: content),
+      banner,
     ],
   );
 }

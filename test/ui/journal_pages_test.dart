@@ -86,6 +86,8 @@ void main() {
         data: data,
       );
       expect(find.text('1 / 2'), findsOneWidget);
+      expect(find.text('Jalan sebentar'), findsWidgets);
+      expect(find.text('Tiga hal yang disyukuri'), findsWidgets);
       await _tap(tester, find.text('Lihat semua kebiasaan'));
       await _tap(tester, find.text('Ringkasan'));
       await _tap(tester, find.text('Lihat semua'));
