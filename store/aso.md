@@ -1,4 +1,4 @@
-# Arunika 1.4 — materi Google Play
+# Arunika 1.4.1 — materi Google Play
 
 ## Metadata
 
@@ -46,7 +46,7 @@ Dibuat untuk orang dewasa, orang tua, wali, dan pengasuh yang ingin mengingat wa
 
 ## Urutan screenshot terbaru
 
-Gunakan screenshot dari UI versi 1.4 dengan data contoh, tanpa data keluarga asli:
+Gunakan screenshot dari UI versi 1.4.1 dengan data contoh, tanpa data keluarga asli:
 
 1. Hari ini: “Satu kebiasaan. Satu cerita.”
 2. Momen: “Cari kembali cerita favorit.”
@@ -59,7 +59,7 @@ Screenshot verifikasi ada di `docs/qa/2026-09-05/screenshots/`. Gambar diambil d
 
 ## Draft Data safety — perlu dicocokkan dengan Play Console
 
-| Bagian | Perilaku versi 1.4 |
+| Bagian | Perilaku versi 1.4.1 |
 | --- | --- |
 | Isi jurnal, anggota dan foto | Disimpan lokal; tidak dikirim ke server Arunika. Ekspor atau share dipilih pengguna. |
 | Pengingat | Izin notifikasi opsional; jadwal lokal mengikuti zona waktu perangkat. |

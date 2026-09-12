@@ -2,7 +2,7 @@
 
 Jurnal keluarga berbahasa Indonesia untuk menyimpan cerita, merawat kebiasaan kecil, dan membaca kembali waktu bersama. Produk aktif ditujukan kepada orang dewasa, orang tua, wali, dan pengasuh.
 
-Versi **1.4.0+8** memperbarui seluruh alur aktif: pembuka, pengaturan awal, empat menu, seluruh formulir, detail cerita, pengaturan, privasi, bantuan, dan pembelian Bebas Iklan.
+Versi **1.4.1+9** memperbarui seluruh alur aktif: pembuka, pengaturan awal, empat menu, seluruh formulir, detail cerita, pengaturan, privasi, bantuan, dan pembelian Bebas Iklan.
 
 ## Alur sehari-hari
 
@@ -52,7 +52,7 @@ Build menghasilkan APK untuk pemasangan lokal dan AAB untuk Play Console. Membua
 - `lib/domain/together/`: ringkasan, media, cadangan, dan PDF.
 - `lib/domain/notifications/` dan `lib/domain/monetization/`: integrasi Android.
 
-Kode pengukuran lama dipertahankan untuk kompatibilitas data, tetapi tidak dijangkau dari navigasi produk aktif. Screenshot dan promosi lama tidak mewakili versi 1.4.
+Kode pengukuran lama dipertahankan untuk kompatibilitas data, tetapi tidak dijangkau dari navigasi produk aktif. Screenshot dan promosi lama tidak mewakili versi 1.4.1.
 
 ## Materi rilis
 
